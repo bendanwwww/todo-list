@@ -31,8 +31,9 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 320,
-    height: 290,
+    backgroundColor: '#00FFFFFF',
+    width: 400,
+    height: 300,
     minWidth: 320,
     minHeight: 290,
     type: "toolbar",

@@ -10,6 +10,11 @@ const routes = [
     component: () => import("../views/Todo.vue"),
   },
   {
+    path: "/longTodo",
+    name: "LongTodo",
+    component: () => import("../views/LongTodo.vue"),
+  },
+  {
     path: "/done",
     name: "Done",
     component: () => import("../views/Done.vue"),

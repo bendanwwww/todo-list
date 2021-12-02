@@ -5,17 +5,34 @@
       <b>{{ appName }}</b>
       <i>Powered by xhznl & lsy</i>
     </div>
-    <div class="nav">
-      <div v-if="this.$route.path !== '/memo'" class="link">
+    <div v-if="this.$route.path !== '/memo'" class="nav">
+      <div class="link">
         <router-link draggable="false" to="/">Todo</router-link> |
-        <router-link draggable="false" to="/done">长期 Todo</router-link> |
+        <router-link draggable="false" to="/longTodo">长期 Todo</router-link> |
         <router-link draggable="false" to="/done">Done</router-link>
       </div>
-      <div v-if="this.$route.path !== '/memo'" class="tools">
+      <div class="tools">
         <transition-group name="fade" mode="out-in">
           <i class="iconfont icon-add" key="open" @click="openMemoWindows"></i>
           <i class="iconfont icon-export" key="export" @click="exportData"></i>
           <i class="iconfont icon-eye-close" key="hide" @click="hideWindow"></i>
+          <i
+            :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
+            key="lock"
+            @mouseenter="setIgnoreMouseEvents(false)"
+            @mouseleave="setIgnoreMouseEvents(ignoreMouse)"
+            @click="ignoreMouse = !ignoreMouse"
+          ></i>
+        </transition-group>
+      </div>
+    </div>
+    <div class="nav" v-else>
+       <div class="link">
+        <b tag="i" draggable="false">Memo</b>
+       </div>
+       <div class="tools">
+        <transition-group name="fade" mode="out-in">
+          <i class="iconfont icon-close" key="close" @click="closeMemo"></i>
           <i
             :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
             key="lock"
@@ -64,6 +81,9 @@ export default {
     },
     hideWindow() {
       ipcRenderer.invoke("hideWindow");
+    },
+    closeMemo() {
+      window.close();
     }
   }
 };
@@ -118,6 +138,13 @@ export default {
         &:hover {
           color: rgba($color: #ffffff, $alpha: 0.6);
         }
+      }
+      b {
+        font-weight: bold;
+        color: #cccccc;
+        text-decoration: none;
+        font-size: 20px;
+        color: #ffffff;
       }
     }
     .tools {

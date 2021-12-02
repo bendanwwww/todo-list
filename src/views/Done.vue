@@ -43,10 +43,15 @@ export default {
       this.doneGroupList = list;
     },
     restore(done) {
-      DB.insert("todoList", {
+      var dataName = "todoList"
+      if (done.type == 'long') {
+        dataName = "longTodoList"
+      }
+      DB.insert(dataName, {
         todo_date: done.todo_date,
         todo_datetime: done.todo_datetime,
         content: done.content,
+        type: done.type
       });
 
       DB.removeById("doneList", done.id);

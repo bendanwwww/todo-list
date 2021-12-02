@@ -57,7 +57,7 @@ export default {
   },
   methods: {
     getTodoList() {
-      const list = DB.get("todoList");
+      const list = DB.get("longTodoList");
       this.todoList = list;
     },
     add() {
@@ -65,11 +65,12 @@ export default {
         this.edited();
         return;
       }
+
       this.todoList.push({
         todo_date: getNowDate(),
         todo_datetime: getNowDateTime(),
         content: "",
-        type: "short"
+        type: "long"
       });
       const index = this.todoList.length - 1;
       this.tempItem = Object.assign({}, this.todoList[index]);
@@ -97,7 +98,7 @@ export default {
       });
       this.editIndex = -1;
 
-      DB.set("todoList", this.todoList);
+      DB.set("longTodoList", this.todoList);
     },
     cancel(index) {
       this.$set(this.todoList, index, this.tempItem);
@@ -131,7 +132,7 @@ export default {
         )
       );
       this.todoList.splice(index, 1);
-      DB.set("todoList", this.todoList);
+      DB.set("longTodoList", this.todoList);
     },
   },
   computed: {
