@@ -36,8 +36,6 @@
           <i
             :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
             key="lock"
-            @mouseenter="setIgnoreMouseEvents(false)"
-            @mouseleave="setIgnoreMouseEvents(ignoreMouse)"
             @click="ignoreMouse = !ignoreMouse"
           ></i>
         </transition-group>
@@ -70,11 +68,10 @@ export default {
       ipcRenderer.invoke("setIgnoreMouseEvents", ignore);
     },
     openMemoWindows() {
-      console.log(this.$route.path);
       let routeData = this.$router.resolve({
         path: "/memo",
       });
-      window.open(routeData.href, '_blank');
+      window.open(routeData.href, 'memo', 'toolbar=yes, height=300, width=400');
     },
     exportData() {
       ipcRenderer.invoke("exportData");

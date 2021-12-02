@@ -147,6 +147,14 @@ function exportData() {
     }
   }
 
+  const sheet3 = workbook.addWorksheet("long todo list");
+  sheet3.addRow(["内容", "建立时间"]);
+  const longTodoList = DB.get("longTodoList");
+
+  for (let i in longTodoList) {
+    sheet3.addRow([longTodoList[i].content, longTodoList[i].todo_datetime]);
+  }
+
   const defaultPath = `/${getNowDateTimeForFlieName()}.xlsx`;
 
   dialog
