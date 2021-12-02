@@ -3,18 +3,19 @@
     <div class="mask"></div>
     <div class="drag-nav">
       <b>{{ appName }}</b>
-      <i>Powered by 小黑</i>
+      <i>Powered by xhznl & lsy</i>
     </div>
     <div class="nav">
-      <div class="link">
+      <div v-if="this.$route.path !== '/memo'" class="link">
         <router-link draggable="false" to="/">Todo</router-link> |
+        <router-link draggable="false" to="/done">长期 Todo</router-link> |
         <router-link draggable="false" to="/done">Done</router-link>
       </div>
-      <div class="tools">
+      <div v-if="this.$route.path !== '/memo'" class="tools">
         <transition-group name="fade" mode="out-in">
+          <i class="iconfont icon-add" key="open" @click="openMemoWindows"></i>
           <i class="iconfont icon-export" key="export" @click="exportData"></i>
           <i class="iconfont icon-eye-close" key="hide" @click="hideWindow"></i>
-
           <i
             :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
             key="lock"
@@ -44,20 +45,27 @@ export default {
   data() {
     return {
       appName: pkg.name,
-      ignoreMouse: false,
+      ignoreMouse: false
     };
   },
   methods: {
     setIgnoreMouseEvents(ignore) {
       ipcRenderer.invoke("setIgnoreMouseEvents", ignore);
     },
+    openMemoWindows() {
+      console.log(this.$route.path);
+      let routeData = this.$router.resolve({
+        path: "/memo",
+      });
+      window.open(routeData.href, '_blank');
+    },
     exportData() {
       ipcRenderer.invoke("exportData");
     },
     hideWindow() {
       ipcRenderer.invoke("hideWindow");
-    },
-  },
+    }
+  }
 };
 </script>
 
