@@ -53,14 +53,14 @@ export function createTray(setPosition) {
     {
       label: "项目地址",
       click: () => {
-        shell.openExternal("https://github.com/xiajingren/xhznl-todo-list");
+        shell.openExternal("https://github.com/bendanwwww/todo-list");
       },
     },
     {
       label: "问题反馈",
       click: () => {
         shell.openExternal(
-          "https://github.com/xiajingren/xhznl-todo-list/issues"
+          "https://github.com/bendanwwww/todo-list/issues"
         );
       },
     },
@@ -71,7 +71,7 @@ export function createTray(setPosition) {
         dialog.showMessageBox({
           title: pkg.name,
           message: pkg.description,
-          detail: `Version: ${pkg.version}\nAuthor: ${pkg.author}\nGithub: https://github.com/xiajingren/xhznl-todo-list`,
+          detail: `Version: ${pkg.version}\nAuthor: ${pkg.author}\nGithub: https://github.com/bendanwwww/todo-list`,
         });
       },
     },
