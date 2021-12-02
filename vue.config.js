@@ -4,9 +4,9 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       builderOptions: {
-        appId: "xhznl-todo-list",
-        productName: "xhznl-todo-list",
-        copyright: "Copyright © 2020 xhznl",
+        appId: "todo-list",
+        productName: "todo-list",
+        copyright: "Copyright © 2021 lsy",
         // directories: {
         //   output: "./dist", //输出文件路径
         // },
@@ -17,7 +17,7 @@ module.exports = {
         nsis: {
           oneClick: false,
           allowToChangeInstallationDirectory: true,
-          shortcutName: "xhznl-todo-list",
+          shortcutName: "todo-list",
         },
         publish: ["github"],
         // releaseInfo: {
