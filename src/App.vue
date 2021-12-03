@@ -55,6 +55,7 @@
 import pkg from "../package.json";
 
 import { ipcRenderer } from "electron";
+import dayjs from "dayjs";
 
 export default {
   data() {
@@ -71,7 +72,7 @@ export default {
       let routeData = this.$router.resolve({
         path: "/memo",
       });
-      window.open(routeData.href, 'memo', 'toolbar=yes, height=300, width=400');
+      window.open(routeData.href, dayjs() + '', 'toolbar=yes, height=300, width=400');
     },
     exportData() {
       ipcRenderer.invoke("exportData");
