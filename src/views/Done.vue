@@ -8,7 +8,7 @@
         :key="done.id"
         @click.stop="editId === done.id ? (editId = '') : (editId = done.id)"
       >
-        <p>{{ index + 1 }}.{{ done.content }}</p>
+        <p>{{done.important == 1 ? '★' : ''}} {{ index + 1 }}.{{ done.content }}</p>
         <i
           v-if="editId === done.id"
           class="iconfont icon-back"
@@ -51,23 +51,20 @@ export default {
         todo_date: done.todo_date,
         todo_datetime: done.todo_datetime,
         content: done.content,
-        type: done.type
+        type: done.type,
+        important: done.important
       });
-
       DB.removeById("doneList", done.id);
-
       this.getDoneList();
     },
     remove(done) {
       DB.removeById("doneList", done.id);
-
       this.getDoneList();
     },
   },
   created() {
     ipcRenderer.invoke("getDataPath").then((storePath) => {
       DB.initDB(storePath);
-
       this.getDoneList();
     });
   },

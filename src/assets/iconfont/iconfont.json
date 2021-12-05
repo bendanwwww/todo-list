@@ -1,10 +1,52 @@
 {
-  "id": "2195577",
-  "name": "xhznl-todo-list",
+  "id": "2988642",
+  "name": "todo_list",
   "font_family": "iconfont",
   "css_prefix_text": "icon-",
   "description": "",
   "glyphs": [
+    {
+      "icon_id": "15838471",
+      "name": "eye-close",
+      "font_class": "eye-close",
+      "unicode": "e66f",
+      "unicode_decimal": 58991
+    },
+    {
+      "icon_id": "15838474",
+      "name": "favorite",
+      "font_class": "favorite",
+      "unicode": "e670",
+      "unicode_decimal": 58992
+    },
+    {
+      "icon_id": "15838514",
+      "name": "minus",
+      "font_class": "minus",
+      "unicode": "e67a",
+      "unicode_decimal": 59002
+    },
+    {
+      "icon_id": "15838530",
+      "name": "select",
+      "font_class": "select",
+      "unicode": "e67e",
+      "unicode_decimal": 59006
+    },
+    {
+      "icon_id": "15838546",
+      "name": "unlock",
+      "font_class": "unlock",
+      "unicode": "e682",
+      "unicode_decimal": 59010
+    },
+    {
+      "icon_id": "15838593",
+      "name": "favorite-filling",
+      "font_class": "favorite-filling",
+      "unicode": "e68a",
+      "unicode_decimal": 59018
+    },
     {
       "icon_id": "15838424",
       "name": "add",
@@ -39,41 +81,6 @@
       "font_class": "export",
       "unicode": "e66e",
       "unicode_decimal": 58990
-    },
-    {
-      "icon_id": "15838471",
-      "name": "eye-close",
-      "font_class": "eye-close",
-      "unicode": "e66f",
-      "unicode_decimal": 58991
-    },
-    {
-      "icon_id": "15838514",
-      "name": "minus",
-      "font_class": "minus",
-      "unicode": "e67a",
-      "unicode_decimal": 59002
-    },
-    {
-      "icon_id": "15838530",
-      "name": "select",
-      "font_class": "select",
-      "unicode": "e67e",
-      "unicode_decimal": 59006
-    },
-    {
-      "icon_id": "15838497",
-      "name": "lock",
-      "font_class": "lock",
-      "unicode": "e676",
-      "unicode_decimal": 58998
-    },
-    {
-      "icon_id": "15838546",
-      "name": "unlock",
-      "font_class": "unlock",
-      "unicode": "e682",
-      "unicode_decimal": 59010
     }
   ]
 }

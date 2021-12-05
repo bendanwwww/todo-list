@@ -16,7 +16,7 @@
           @dblclick.stop="done($event, index)"
           @click.stop="editing(index)"
         >
-          <p v-if="index !== editIndex">{{ index + 1 }}.{{ todo.content }}</p>
+          <p v-if="index !== editIndex">{{todo.important == 1 ? '★' : ''}} {{ index + 1 }}.{{ todo.content }}</p>
           <div class="edit" v-else>
             <input
               v-model="todo.content"
@@ -26,6 +26,7 @@
               @keyup.13="edited"
               spellcheck="false"
             />
+            <i :class="['iconfont', todo.important == 0 ? 'icon-favorite' : 'icon-favorite-filling']" @click.stop="addStar(index)"></i>
             <i class="iconfont icon-select" @click.stop="edited"></i>
             <i class="iconfont icon-close" @click.stop="clear(index)"></i>
           </div>
@@ -56,21 +57,34 @@ export default {
     };
   },
   methods: {
+    // 兼容性赋值
+    addMethods(list) {
+      for (var i = 0 ; i < list.length ; i++) {
+        list[i].type === undefined ? list[i].type = "short" : null;
+        list[i].important === undefined ? list[i].important = "0" : null;
+      }
+      return list;
+    },
     getTodoList() {
       const list = DB.get("longTodoList");
-      this.todoList = list;
+      this.todoList = this.addMethods(list);
+    },
+    addStar(index) {
+      this.todoList[index].important == 0 
+      ? this.todoList[index].important = 1 
+      : this.todoList[index].important = 0;
     },
     add() {
       if (this.editIndex !== -1) {
         this.edited();
         return;
       }
-
       this.todoList.push({
         todo_date: getNowDate(),
         todo_datetime: getNowDateTime(),
         content: "",
-        type: "long"
+        type: "long",
+        important: 0
       });
       const index = this.todoList.length - 1;
       this.tempItem = Object.assign({}, this.todoList[index]);
@@ -82,13 +96,10 @@ export default {
         if (this.dblclick) {
           return;
         }
-
         if (this.editIndex !== -1) {
           this.edited();
         }
-
         this.tempItem = Object.assign({}, this.todoList[index]);
-
         this.editIndex = index;
       }, 220);
     },
@@ -97,7 +108,6 @@ export default {
         return p.content;
       });
       this.editIndex = -1;
-
       DB.set("longTodoList", this.todoList);
     },
     cancel(index) {
@@ -109,21 +119,17 @@ export default {
         this.edited();
         return;
       }
-
       this.todoList[index].content = "";
     },
     done(event, index) {
       if (this.editIndex !== -1) {
         return;
       }
-
       this.dblclick = true;
       setTimeout(() => {
         this.dblclick = false;
       }, 500);
-
       CursorSpecialEffects.handleMouseDown(event);
-
       DB.insert(
         "doneList",
         Object.assign(
@@ -148,7 +154,6 @@ export default {
   created() {
     ipcRenderer.invoke("getDataPath").then((storePath) => {
       DB.initDB(storePath);
-
       this.getTodoList();
     });
   },

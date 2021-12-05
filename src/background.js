@@ -11,6 +11,8 @@ import { autoUpdater } from "electron-updater";
 
 import pkg from "../package.json";
 
+import dayjs from "dayjs";
+
 let win;
 
 if (app.requestSingleInstanceLock()) {
@@ -165,3 +167,20 @@ ipcMain.handle("setIgnoreMouseEvents", (event, ignore) => {
 ipcMain.handle("hideWindow", (event) => {
   win.hide();
 });
+
+// ipcMain.handle("openMemoWindows", (event) => {
+//   // window.open('/memo', dayjs() + '', 'toolbar=yes, height=300, width=400');
+//   addNewWindow = new BrowserWindow({
+//     width: 400,
+//     height: 550,
+//     parent: win, // win是主窗口
+//     frame: false,
+//     webPreferences: {
+//       nodeIntegration: true,
+//     },
+//   });
+//   // addNewWindow.loadURL('#/memo');
+//   // addNewWindow.on('closed', () => {
+//   //   addNewWindow = null;
+//   // });
+// });
