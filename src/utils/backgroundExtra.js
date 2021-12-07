@@ -5,7 +5,7 @@ import {
   Menu,
   shell,
   dialog,
-  Notification,
+  Notification
 } from "electron";
 import DB from "./db";
 import path from "path";
@@ -16,9 +16,13 @@ import ExcelJS from "exceljs";
 
 import { getNowDateTimeForFlieName } from "@/utils/common";
 
+import { checkVersion } from "../background";
+import { Console } from "console";
+
 let tray;
 
 export function getDataPath() {
+  console.info(app.getPath("userData"));
   return app.getPath("userData");
 }
 
@@ -63,6 +67,13 @@ export function createTray(setPosition) {
           "https://github.com/bendanwwww/todo-list/issues"
         );
       },
+    },
+    {
+      label: "检查更新",
+      click: () => {
+        console.info(pkg.version)
+        // checkVersion(pkg.version);
+      }
     },
     {
       label: "关于",

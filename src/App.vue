@@ -37,6 +37,8 @@
           <i
             :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
             key="lock"
+            @mouseenter="setMemoIgnoreMouseEvents(false)"
+            @mouseleave="setMemoIgnoreMouseEvents(ignoreMouse)"
             @click="ignoreMouse = !ignoreMouse"
           ></i>
         </transition-group>
@@ -56,7 +58,7 @@
 import pkg from "../package.json";
 
 import { ipcRenderer } from "electron";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 
 export default {
   data() {
@@ -69,11 +71,15 @@ export default {
     setIgnoreMouseEvents(ignore) {
       ipcRenderer.invoke("setIgnoreMouseEvents", ignore);
     },
+    setMemoIgnoreMouseEvents(ignore) {
+      ipcRenderer.invoke("setMemoIgnoreMouseEvents", this.$route.query.timestamp, ignore);
+    },
     openMemoWindows() {
-      let routeData = this.$router.resolve({
-        path: "/memo",
-      });
-      window.open(routeData.href, dayjs() + '', 'toolbar=yes, height=300, width=400');
+      // let routeData = this.$router.resolve({
+      //   path: "/memo",
+      // });
+      // window.open(routeData.href, dayjs() + '', 'toolbar=yes, height=300, width=400');
+      ipcRenderer.invoke("openMemoWindows");
     },
     exportData() {
       ipcRenderer.invoke("exportData");

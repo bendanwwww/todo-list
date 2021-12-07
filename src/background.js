@@ -1,6 +1,6 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, screen, ipcMain } from "electron";
+import { app, protocol, BrowserWindow, screen, ipcMain, remote, shell } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 //import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 const isDevelopment = process.env.NODE_ENV !== "production";
@@ -10,10 +10,14 @@ import { initExtra, createTray } from "@/utils/backgroundExtra";
 import { autoUpdater } from "electron-updater";
 
 import pkg from "../package.json";
-
 import dayjs from "dayjs";
 
 let win;
+let memo_win_map = new Map();
+const winURL = isDevelopment
+  ? `http://localhost:8080`
+  : `file://${__dirname}/index.html`
+const downloadReady = false;
 
 if (app.requestSingleInstanceLock()) {
   app.on("second-instance", (event, commandLine, workingDirectory) => {
@@ -33,11 +37,11 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    backgroundColor: '#00FFFFFF',
+    backgroundColor: '#40000000',
     width: 400,
     height: 300,
-    minWidth: 320,
-    minHeight: 290,
+    minWidth: 340,
+    minHeight: 255,
     type: "toolbar",
     frame: false,
     title: pkg.name,
@@ -159,6 +163,61 @@ function showWindow() {
   if (!win.isVisible()) win.show();
 }
 
+export function checkVersion(version) {
+  // 下载版本号
+  downloadFile('http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/version.txt', '/Users/zhihu/person/workspace/my_work/todo-list/version.txt');
+  while (!downloadReady) {
+    console.info('wait');
+  }
+  downloadReady = false;
+  // 读取版本号
+  const newVersion = readFile('/Users/zhihu/person/workspace/my_work/todo-list/version.txt', version);
+  console.info(newVersion);
+}
+
+function downloadFile(url, filePath) {
+  let downloadObj = {
+    downloadPath: url, // 要下载的链接或文件
+    savedPath: filePath // 要保存的路径
+  }
+  win.webContents.downloadURL(downloadObj.downloadPath);
+  win.webContents.session.on('will-download', (event, item) => {
+    //设置文件存放位置
+    item.setSavePath(downloadObj.savedPath)
+    item.on('updated', (event, state) => {
+      if (state === 'interrupted') {
+        console.log('Download is interrupted but can be resumed')
+      } else if (state === 'progressing') {
+        if (item.isPaused()) {
+          console.log('Download is paused');
+        } else {
+          console.log(`Received bytes: ${item.getReceivedBytes()}`);
+        }
+      }
+    })
+    item.once('done', (event, state) => {
+      if (state === 'completed') {
+        console.log('Download successfully');
+        downloadReady = true;
+        // shell.showItemInFolder(downloadObj.savedPath); // 下载成功后打开文件所在文件夹
+      } else {
+        console.log(`Download failed: ${state}`);
+      }
+    })
+  });
+}
+
+function readFile(filePath, defaultValue) {
+  const fs = require("fs");
+  const fileData = defaultValue;
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if(!err) {
+      fileData = data;
+    }
+  });
+  return fileData;
+}
+
 ipcMain.handle("setIgnoreMouseEvents", (event, ignore) => {
   if (ignore) win.setIgnoreMouseEvents(true, { forward: true });
   else win.setIgnoreMouseEvents(false);
@@ -168,19 +227,35 @@ ipcMain.handle("hideWindow", (event) => {
   win.hide();
 });
 
-// ipcMain.handle("openMemoWindows", (event) => {
-//   // window.open('/memo', dayjs() + '', 'toolbar=yes, height=300, width=400');
-//   addNewWindow = new BrowserWindow({
-//     width: 400,
-//     height: 550,
-//     parent: win, // win是主窗口
-//     frame: false,
-//     webPreferences: {
-//       nodeIntegration: true,
-//     },
-//   });
-//   // addNewWindow.loadURL('#/memo');
-//   // addNewWindow.on('closed', () => {
-//   //   addNewWindow = null;
-//   // });
-// });
+ipcMain.handle("openMemoWindows", (event) => {
+  var vipWin = new BrowserWindow({
+    parent: win, // win是主窗口
+    backgroundColor: '#40000000',
+    width: 400,
+    height: 300,
+    minWidth: 340,
+    minHeight: 255,
+    type: "toolbar",
+    frame: false,
+    title: pkg.name,
+    minimizable: false,
+    maximizable: false,
+    skipTaskbar: true,
+    transparent: true,
+    alwaysOnTop: true,
+    useContentSize: true,
+    webPreferences: {
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+    },
+  });
+  let now = dayjs();
+  vipWin.loadURL(winURL + '#/memo?timestamp=' + now);
+  vipWin.on('closed', () => { vipWin = null });
+  memo_win_map.set(now + '', vipWin);
+});
+
+ipcMain.handle("setMemoIgnoreMouseEvents", (event, router, ignore) => {
+  let memo_win = memo_win_map.get(router);
+  if (ignore) memo_win.setIgnoreMouseEvents(true, { forward: true });
+  else memo_win.setIgnoreMouseEvents(false);
+});
