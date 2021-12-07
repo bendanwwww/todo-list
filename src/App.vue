@@ -8,8 +8,9 @@
     <div v-if="this.$route.path !== '/memo'" class="nav">
       <div class="link">
         <router-link draggable="false" to="/">Todo</router-link> |
-        <router-link draggable="false" to="/longTodo">长期 Todo</router-link> |
-        <router-link draggable="false" to="/done">Done</router-link>
+        <router-link draggable="false" to="/longTodo">Schedule</router-link> |
+        <router-link draggable="false" to="/done">Done</router-link><!--  | -->
+        <!-- <router-link draggable="false" to="/done">Memo</router-link> -->
       </div>
       <div class="tools">
         <transition-group name="fade" mode="out-in">
