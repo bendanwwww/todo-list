@@ -85,7 +85,7 @@ export default {
       height: 224px;
       line-height: 180px;
       box-sizing: border-box;
-      color: rgba($color: #cccccc, $alpha: 0.8);
+      color: rgba($color: #ffffff, $alpha: 1.0);
       font-size: 35px;
       text-align: center;
       user-select: none;
