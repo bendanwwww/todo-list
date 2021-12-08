@@ -230,7 +230,7 @@ ipcMain.handle("hideWindow", (event) => {
 ipcMain.handle("openMemoWindows", (event) => {
   var vipWin = new BrowserWindow({
     parent: win, // win是主窗口
-    backgroundColor: '#40000000',
+    backgroundColor: '#20000000',
     width: 400,
     height: 300,
     minWidth: 340,

@@ -27,6 +27,7 @@
               spellcheck="false"
             />
             <i :class="['iconfont', todo.important == 0 ? 'icon-favorite' : 'icon-favorite-filling']" @click.stop="addStar(index)"></i>
+            <i v-if="todo.content !== ''" class="iconfont icon-run-in" @click.stop="addLongTodo($event, index)"></i>
             <i class="iconfont icon-select" @click.stop="edited"></i>
             <i class="iconfont icon-close" @click.stop="clear(index)"></i>
           </div>
@@ -137,6 +138,25 @@ export default {
         "doneList",
         Object.assign(
           { done_date: getNowDate(), done_datetime: getNowDateTime() },
+          this.todoList[index]
+        )
+      );
+      this.todoList.splice(index, 1);
+      DB.set("todoList", this.todoList);
+    },
+    addLongTodo(event, index) {
+      if (this.editIndex === -1) {
+        return;
+      }
+      this.dblclick = true;
+      setTimeout(() => {
+        this.dblclick = false;
+      }, 500);
+      // CursorSpecialEffects.handleMouseDown(event);
+      this.todoList[index].type = "long";
+      DB.insert(
+        "longTodoList",
+        Object.assign(
           this.todoList[index]
         )
       );

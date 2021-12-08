@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "15838520",
+      "name": "run-up",
+      "font_class": "run-up",
+      "unicode": "e67b",
+      "unicode_decimal": 59003
+    },
+    {
+      "icon_id": "15838522",
+      "name": "run-in",
+      "font_class": "run-in",
+      "unicode": "e67c",
+      "unicode_decimal": 59004
+    },
+    {
       "icon_id": "15838497",
       "name": "lock",
       "font_class": "lock",
