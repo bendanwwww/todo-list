@@ -40,8 +40,8 @@ async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     backgroundColor: '#40000000',
-    width: 420,
-    height: 315,
+    width: 440,
+    height: 330,
     minWidth: 340,
     minHeight: 255,
     type: "toolbar",
@@ -233,8 +233,8 @@ ipcMain.handle("openMemoWindows", (event, id) => {
   var vipWin = new BrowserWindow({
     parent: win, // win是主窗口
     backgroundColor: '#20000000',
-    width: 420,
-    height: 315,
+    width: 400,
+    height: 300,
     minWidth: 340,
     minHeight: 255,
     type: "toolbar",

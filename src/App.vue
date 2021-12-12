@@ -10,7 +10,7 @@
         <router-link draggable="false" to="/">Todo</router-link> |
         <router-link draggable="false" to="/longTodo">Schedule</router-link> |
         <router-link draggable="false" to="/done">Done</router-link> |
-        <router-link draggable="false" to="/memoList">MemoList</router-link>
+        <router-link draggable="false" to="/memoList">Memo</router-link>
       </div>
       <div class="tools">
         <transition-group name="fade" mode="out-in">
