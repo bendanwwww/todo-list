@@ -5,8 +5,7 @@
         <div class="item" >
             <div class="edit" >
               <textarea
-                v-model="data"
-                v-focus
+                v-model="content"
                 spellcheck="false"
               />
             </div>
@@ -17,20 +16,58 @@
 </template>
 <script>
 
+import DB from "@/utils/db";
+import { ipcRenderer } from "electron";
+import { v4 as uuidv4 } from 'uuid';
+import { getNowDate, getNowDateTime } from "@/utils/common";
+
 export default {
   name: "Memo",
   data() {
     return {
-      data: null,
+      memoData: null,
+      content: ''
     };
   },
   methods: {
-    getTodoList() {
-      this.data = "";
+    getMemoData(id) {
+      if (id == '') {
+        id = uuidv4();
+        let list = DB.get("memoList");
+        list.push({
+          memo_date: getNowDate(),
+          memo_datetime: getNowDateTime(),
+          title: "",
+          content: "",
+          id: id
+        });
+        DB.set("memoList", list);
+        this.$route.query.id = id;
+        ipcRenderer.invoke("setMemoWindows", id, this.$route.query.timestamp);
+      }
+      this.memoData = DB.getById("memoList", id);
+      this.content = this.memoData.content;
+      
+    },
+    saveData() {
+      setInterval(() => {
+        if (this.memoData !== null) {
+          if (this.memoData.content !== this.content) {
+            this.memoData.content = this.content;
+            console.info(this.memoData);
+            DB.updateById("memoList", this.memoData.id, this.memoData);
+          }
+        }
+      }, 1000);
     }
   },
   created() {
-    this.getTodoList();
+    ipcRenderer.invoke("getDataPath").then((storePath) => {
+      DB.initDB(storePath);
+      let id = this.$route.query.id;
+      this.getMemoData(id);
+    });
+    this.saveData();
   },
 };
 </script>

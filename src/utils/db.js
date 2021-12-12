@@ -83,6 +83,15 @@ const DB = {
           important: 1
         },
       ],
+      memoList: [
+        {
+          id: "3ea92744-145a-41b2-90f8-fdc0972f93bb",
+          memo_date: getNowDate(),
+          memo_datetime: getNowDateTime(),
+          title: "",
+          content: "这是一个测试memo, 你可以在此记录文字、备忘录以及很多idea～"
+        }
+      ],
       settings: {},
     }).write();
 
@@ -121,6 +130,21 @@ const DB = {
       .get(key)
       .removeById(id)
       .write();
+  },
+  getById(key, id) {
+    return db
+    .read()
+    .get(key)
+    .find({id: id})
+    .value();
+  },
+  updateById(key, id, value) {
+    return db
+    .read()
+    .get(key)
+    .find({id: id})
+    .assign(value)
+    .write();
   },
   groupby(key, prop) {
     const d = db

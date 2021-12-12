@@ -14,6 +14,8 @@ import dayjs from "dayjs";
 
 let win;
 let memo_win_map = new Map();
+let memo_id_win_map = new Map();
+
 const winURL = isDevelopment
   ? `http://localhost:8080`
   : `file://${__dirname}/index.html`
@@ -38,8 +40,8 @@ async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     backgroundColor: '#40000000',
-    width: 400,
-    height: 300,
+    width: 420,
+    height: 315,
     minWidth: 340,
     minHeight: 255,
     type: "toolbar",
@@ -227,12 +229,12 @@ ipcMain.handle("hideWindow", (event) => {
   win.hide();
 });
 
-ipcMain.handle("openMemoWindows", (event) => {
+ipcMain.handle("openMemoWindows", (event, id) => {
   var vipWin = new BrowserWindow({
     parent: win, // win是主窗口
     backgroundColor: '#20000000',
-    width: 400,
-    height: 300,
+    width: 420,
+    height: 315,
     minWidth: 340,
     minHeight: 255,
     type: "toolbar",
@@ -246,16 +248,42 @@ ipcMain.handle("openMemoWindows", (event) => {
     useContentSize: true,
     webPreferences: {
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      // openDevTools: true
     },
   });
   let now = dayjs();
-  vipWin.loadURL(winURL + '#/memo?timestamp=' + now);
-  vipWin.on('closed', () => { vipWin = null });
   memo_win_map.set(now + '', vipWin);
+  if (id !== '') {
+    memo_id_win_map.set(id + '', vipWin);
+  }
+  vipWin.loadURL(winURL + '#/memo?id=' + id + '&timestamp=' + now);
+  vipWin.on('closed', () => { vipWin = null });
 });
 
 ipcMain.handle("setMemoIgnoreMouseEvents", (event, router, ignore) => {
   let memo_win = memo_win_map.get(router);
+  // memo_win.webContents.openDevTools()
   if (ignore) memo_win.setIgnoreMouseEvents(true, { forward: true });
   else memo_win.setIgnoreMouseEvents(false);
+});
+
+ipcMain.handle("checkMemoWindows", (event, id) => {
+  console.info(id);
+  console.info(memo_id_win_map.has(id));
+  return !memo_id_win_map.has(id);
+});
+
+ipcMain.handle("setMemoWindows", (event, id, time) => {
+  let memo_win = memo_win_map.get(time);
+  memo_id_win_map.set(id + '', memo_win);
+});
+
+ipcMain.handle("removeMemoWindows", (event, id, time) => {
+  memo_win_map.delete(time);
+  memo_id_win_map.delete(id);
+});
+
+ipcMain.handle("hasMemoWindows", (event) => {
+  console.info(memo_id_win_map.size);
+  return memo_id_win_map.size > 0;
 });

@@ -9,12 +9,12 @@
       <div class="link">
         <router-link draggable="false" to="/">Todo</router-link> |
         <router-link draggable="false" to="/longTodo">Schedule</router-link> |
-        <router-link draggable="false" to="/done">Done</router-link><!--  | -->
-        <!-- <router-link draggable="false" to="/done">Memo</router-link> -->
+        <router-link draggable="false" to="/done">Done</router-link> |
+        <router-link draggable="false" to="/memoList">MemoList</router-link>
       </div>
       <div class="tools">
         <transition-group name="fade" mode="out-in">
-          <i class="iconfont icon-add" key="open" @click="openMemoWindows"></i>
+          <i v-if="this.$route.path === '/memoList'" class="iconfont icon-add" key="open" @click="openMemoWindows"></i>
           <i class="iconfont icon-export" key="export" @click="exportData"></i>
           <i class="iconfont icon-eye-close" key="hide" @click="hideWindow"></i>
           <i
@@ -75,11 +75,7 @@ export default {
       ipcRenderer.invoke("setMemoIgnoreMouseEvents", this.$route.query.timestamp, ignore);
     },
     openMemoWindows() {
-      // let routeData = this.$router.resolve({
-      //   path: "/memo",
-      // });
-      // window.open(routeData.href, dayjs() + '', 'toolbar=yes, height=300, width=400');
-      ipcRenderer.invoke("openMemoWindows");
+      ipcRenderer.invoke("openMemoWindows", '');
     },
     exportData() {
       ipcRenderer.invoke("exportData");
@@ -88,7 +84,11 @@ export default {
       ipcRenderer.invoke("hideWindow");
     },
     closeMemo() {
-      window.close();
+      if (this.$route.path === '/memo') {
+        ipcRenderer.invoke("removeMemoWindows", this.$route.query.id, this.$route.query.timestamp).then(() => {
+          window.close();
+        });
+      }
     }
   }
 };
