@@ -11,6 +11,8 @@ import { autoUpdater } from "electron-updater";
 
 import pkg from "../package.json";
 import dayjs from "dayjs";
+import path from "path";
+import DB from "@/utils/db";
 
 let win;
 let memo_win_map = new Map();
@@ -36,6 +38,16 @@ protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { secure: true, standard: true } },
 ]);
 
+app.whenReady().then(() => {
+  // 这个需要在app.ready触发之后使用
+  protocol.registerFileProtocol('atom', (request, callback) => {
+    const url = DB.get("settings.background_img_path");
+    // refresh("url", url);
+    // refresh("dburl", DB.get("settings.background_img_path"));
+    callback(decodeURI(path.normalize(url)))
+  })
+})
+
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
@@ -60,6 +72,7 @@ async function createWindow() {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      webSecurity: false
     },
   });
 
@@ -74,6 +87,7 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL("app://./index.html");
     autoUpdater.checkForUpdatesAndNotify();
+    // win.webContents.openDevTools();
   }
 
   // win.once("ready-to-show", () => {
@@ -173,8 +187,8 @@ export function checkVersion(version) {
   }
   downloadReady = false;
   // 读取版本号
-  const newVersion = readFile('/Users/zhihu/person/workspace/my_work/todo-list/version.txt', version);
-  console.info(newVersion);
+  // const newVersion = readFile('/Users/zhihu/person/workspace/my_work/todo-list/version.txt', version);
+  // console.info(newVersion);
 }
 
 function downloadFile(url, filePath) {
@@ -218,6 +232,11 @@ function readFile(filePath, defaultValue) {
     }
   });
   return fileData;
+}
+
+export function refresh(name, msg) {
+  console.info(name)
+  win.webContents.send('refresh', name, msg);
 }
 
 ipcMain.handle("setIgnoreMouseEvents", (event, ignore) => {

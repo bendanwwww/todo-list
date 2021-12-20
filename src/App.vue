@@ -1,5 +1,8 @@
 <template>
   <div id="app" :class="{ unfocused: ignoreMouse }">
+    <div class="background">    
+      <img :src="backgroundImg" width="100%" height="100%" alt="" />
+    </div>
     <div class="mask"></div>
     <div class="drag-nav">
       <b>{{ appName }}</b>
@@ -57,14 +60,16 @@
 <script>
 import pkg from "../package.json";
 
+import DB from "@/utils/db";
 import { ipcRenderer } from "electron";
-// import dayjs from "dayjs";
 
 export default {
   data() {
     return {
+      pageName: 'main',
       appName: pkg.name,
-      ignoreMouse: false
+      ignoreMouse: false,
+      backgroundImg: ''
     };
   },
   methods: {
@@ -89,12 +94,34 @@ export default {
           window.close();
         });
       }
+    },
+    refresh() {
+      this.backgroundImg = DB.get("settings.background_img");
     }
-  }
+  },
+  created() {
+    ipcRenderer.invoke("getDataPath").then((storePath) => {
+      DB.initDB(storePath);
+      this.backgroundImg = DB.get("settings.background_img");
+    });
+    ipcRenderer.on('refresh', (event, name, msg) => {
+      console.info("name: " + name + " msg: "+ msg);
+      if (name == this.pageName) {
+        this.refresh();
+      }
+    });
+  },
 };
 </script>
 
 <style lang="scss" scoped>
+.background {
+    width:100%;
+    height:100%;  /**宽高100%是为了图片铺满屏幕 **/
+    z-index:-1;
+    position: absolute;
+    opacity: 0.5;
+}
 #app {
   display: flex;
   flex-direction: column;

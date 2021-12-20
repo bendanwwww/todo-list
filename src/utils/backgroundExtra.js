@@ -13,10 +13,13 @@ import path from "path";
 import pkg from "../../package.json";
 
 import ExcelJS from "exceljs";
+import images from "images";
+import dayjs from "dayjs";
 
 import { getNowDateTimeForFlieName } from "@/utils/common";
+import fs from "fs-extra";
 
-import { checkVersion } from "../background";
+import { checkVersion, refresh } from "../background";
 import { Console } from "console";
 
 let tray;
@@ -33,12 +36,22 @@ ipcMain.handle("getDataPath", (event) => {
 export function initExtra() {
   const storePath = getDataPath();
   DB.initDB(storePath);
-
   const firstRun = DB.get("settings.firstRun");
   if (firstRun) {
     setOpenAtLogin(true);
     DB.set("settings.firstRun", false);
   }
+}
+
+export function copyFile(src, dist) {
+  // refresh('copyFile', src + "---" + dist);
+  fs.writeFileSync(dist, fs.readFileSync(src));
+  // fs.createReadStream(src).pipe(fs.createWriteStream(dist));
+  // images(src)
+  // .size(440, 330)
+  // .save(path.join(__static, handleName), {
+  //     quality : 50
+  // });
 }
 
 export function createTray(setPosition) {
@@ -52,6 +65,32 @@ export function createTray(setPosition) {
       click() {
         const openAtLogin = getOpenAtLogin();
         setOpenAtLogin(!openAtLogin);
+      },
+    },
+    {
+      label: "背景图设置",
+      click: () => {
+        dialog.showOpenDialog({
+          filters: [
+            {
+              extensions: ['jpg', 'png']
+            }
+          ],
+        }).then(result => {
+          let img_path = result.filePaths[0];
+          if (img_path != undefined) {
+            const file_name_list = img_path.split('.');
+            let file_name = dayjs() + file_name_list[file_name_list.length - 1];
+            let file_path = path.join(getDataPath(), file_name);
+            // refresh('filename', img_path + "---" + file_path);
+            copyFile(img_path, file_path);
+            DB.set("settings.background_img", 'atom:///' + file_path);
+            DB.set("settings.background_img_path", file_path);
+            refresh('main', null);
+          }
+        }).catch(err => {
+          refresh('main error', err);
+        });
       },
     },
     {

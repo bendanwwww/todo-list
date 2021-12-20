@@ -50,6 +50,7 @@ export default {
   },
   data() {
     return {
+      pageName: 'longTodo',
       todoList: null,
       drag: false,
       editIndex: -1,

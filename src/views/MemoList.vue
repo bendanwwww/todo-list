@@ -45,6 +45,7 @@ export default {
   },
   data() {
     return {
+      pageName: 'memoList',
       memoList: null,
       drag: false,
       clickIndex: -1

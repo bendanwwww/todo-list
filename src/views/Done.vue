@@ -32,6 +32,7 @@ export default {
   name: "Done",
   data() {
     return {
+      pageName: 'done',
       doneGroupList: null,
       editId: "",
     };

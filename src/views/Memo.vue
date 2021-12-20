@@ -25,6 +25,7 @@ export default {
   name: "Memo",
   data() {
     return {
+      pageName: 'memo',
       memoData: null,
       content: ''
     };

@@ -1,6 +1,6 @@
 {
   "name": "xhznl-todo-list",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "private": true,
   "author": "xhznl & lsy",
   "description": "a todo list application",
@@ -25,7 +25,10 @@
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.24.3",
-    "vuex": "^3.4.0"
+    "vuex": "^3.4.0",
+    "copy-webpack-plugin": "^5.1.0",
+    "images": "^3.2.3",
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
