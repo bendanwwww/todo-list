@@ -18,6 +18,19 @@ let win;
 let memo_win_map = new Map();
 let memo_id_win_map = new Map();
 
+const min_win_width = 40;
+const min_win_height = 40;
+
+const max_win_width = 1200;
+const max_win_height = 800;
+
+const init_win_width = 440;
+const init_win_height = 330;
+
+const init_x = 500;
+const init_y = 500;
+
+
 const winURL = isDevelopment
   ? `http://localhost:8080`
   : `file://${__dirname}/index.html`
@@ -51,11 +64,13 @@ app.whenReady().then(() => {
 async function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    backgroundColor: '#40000000',
-    width: 440,
-    height: 330,
-    minWidth: 340,
-    minHeight: 255,
+    // backgroundColor: '#40000000',
+    width: min_win_width,
+    height: min_win_height,
+    minWidth: min_win_width,
+    minHeight: min_win_height,
+    maxWidth: min_win_width,
+    maxHeight: min_win_height,
     type: "toolbar",
     frame: false,
     title: pkg.name,
@@ -81,7 +96,7 @@ async function createWindow() {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
-    if (!process.env.IS_TEST) win.webContents.openDevTools();
+    // if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
     createProtocol("app");
     // Load the index.html when not in development
@@ -287,8 +302,6 @@ ipcMain.handle("setMemoIgnoreMouseEvents", (event, router, ignore) => {
 });
 
 ipcMain.handle("checkMemoWindows", (event, id) => {
-  console.info(id);
-  console.info(memo_id_win_map.has(id));
   return !memo_id_win_map.has(id);
 });
 
@@ -303,6 +316,36 @@ ipcMain.handle("removeMemoWindows", (event, id, time) => {
 });
 
 ipcMain.handle("hasMemoWindows", (event) => {
-  console.info(memo_id_win_map.size);
   return memo_id_win_map.size > 0;
 });
+
+ipcMain.handle("showWindows", (event) => {
+  const winBounds = win.getBounds();
+  let winSize = DB.get("settings.windows_size");
+  if (winSize == undefined) {
+    DB.set("settings.windows_size", [init_win_width, init_win_height]);
+    winSize = DB.get("settings.windows_size");
+  }
+  console.info("showWindows == " + winBounds.x, winBounds.y, winSize[0], winSize[1]);
+  win.setMaximumSize(max_win_width, max_win_height);
+  win.setBounds({
+    x: winBounds.x - winSize[0] + winBounds.width, 
+    y: winBounds.y, 
+    width: winSize[0], 
+    height: winSize[1] 
+  });
+});
+
+ipcMain.handle("shrinkWindows", (event) => {
+  const winBounds = win.getBounds();
+  DB.set("settings.windows_size", [winBounds.width, winBounds.height]);
+  console.info("shrinkWindows == " + winBounds.x, winBounds.y, min_win_width, min_win_height);
+  win.setMaximumSize(min_win_width, min_win_height);
+  win.setBounds({
+    x: winBounds.x + winBounds.width - min_win_width, 
+    y: winBounds.y, 
+    width: min_win_width, 
+    height: min_win_height 
+  });
+});
+

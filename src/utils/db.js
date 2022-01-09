@@ -92,7 +92,9 @@ const DB = {
           content: "这是一个测试memo, 你可以在此记录文字、备忘录以及很多idea～"
         }
       ],
-      settings: {},
+      settings: {
+        windows_size: [100, 100]
+      },
     }).write();
 
     if (!this.has("settings.firstRun")) {

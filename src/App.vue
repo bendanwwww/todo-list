@@ -1,60 +1,71 @@
 <template>
-  <div id="app" :class="{ unfocused: ignoreMouse }">
-    <div class="background">    
-      <img :src="backgroundImg" width="100%" height="100%" alt="" />
-    </div>
-    <div class="mask"></div>
-    <div class="drag-nav">
-      <b>{{ appName }}</b>
-      <i>Powered by xhznl & lsy</i>
-    </div>
-    <div v-if="this.$route.path !== '/memo'" class="nav">
-      <div class="link">
-        <router-link draggable="false" to="/">Todo</router-link> |
-        <router-link draggable="false" to="/longTodo">Schedule</router-link> |
-        <router-link draggable="false" to="/done">Done</router-link> |
-        <router-link draggable="false" to="/memoList">Memo</router-link>
+    <div v-if="showState" id="app" :class="{ unfocused: ignoreMouse }">
+      <div class="background">    
+        <img :src="backgroundImg" width="100%" height="100%" alt="" />
       </div>
-      <div class="tools">
-        <transition-group name="fade" mode="out-in">
-          <i v-if="this.$route.path === '/memoList'" class="iconfont icon-add" key="open" @click="openMemoWindows"></i>
-          <i class="iconfont icon-export" key="export" @click="exportData"></i>
-          <i class="iconfont icon-eye-close" key="hide" @click="hideWindow"></i>
-          <i
-            :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
-            key="lock"
-            @mouseenter="setIgnoreMouseEvents(false)"
-            @mouseleave="setIgnoreMouseEvents(ignoreMouse)"
-            @click="ignoreMouse = !ignoreMouse"
-          ></i>
-        </transition-group>
+      <div class="mask"></div>
+      <div class="drag-nav">
+        <b>{{ appName }}</b>
+        <i>Powered by xhznl & lsy</i>
+      </div>
+      <div v-if="this.$route.path !== '/memo'" class="nav">
+        <div class="link">
+          <router-link draggable="false" to="/">Todo</router-link> |
+          <router-link draggable="false" to="/longTodo">Schedule</router-link> |
+          <router-link draggable="false" to="/done">Done</router-link> |
+          <router-link draggable="false" to="/memoList">Memo</router-link>
+        </div>
+        <div class="tools">
+          <transition-group name="fade" mode="out-in">
+            <!-- <i class="iconfont icon-run-up" key="test1" @click="showWindows"></i>
+            <i class="iconfont icon-run-in" key="test2" @click="shrinkWindows"></i> -->
+
+            <i class="iconfont icon-arrow-double-right" key="shrink" @click="changeWindows"></i>
+            <i v-if="this.$route.path === '/memoList'" class="iconfont icon-add" key="open" @click="openMemoWindows"></i>
+            <i class="iconfont icon-export" key="export" @click="exportData"></i>
+            <i class="iconfont icon-eye-close" key="hide" @click="hideWindow"></i>
+            <i
+              :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
+              key="lock"
+              @mouseenter="setIgnoreMouseEvents(false)"
+              @mouseleave="setIgnoreMouseEvents(ignoreMouse)"
+              @click="ignoreMouse = !ignoreMouse"
+            ></i>
+          </transition-group>
+        </div>
+      </div>
+      <div class="nav" v-else>
+        <div class="link">
+          <b tag="i" draggable="false">Memo</b>
+        </div>
+        <div class="tools">
+          <transition-group name="fade" mode="out-in">
+            <i class="iconfont icon-close" key="close" @click="closeMemo"></i>
+            <i
+              :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
+              key="lock"
+              @mouseenter="setMemoIgnoreMouseEvents(false)"
+              @mouseleave="setMemoIgnoreMouseEvents(ignoreMouse)"
+              @click="ignoreMouse = !ignoreMouse"
+            ></i>
+          </transition-group>
+        </div>
+      </div>
+      <div class="main scrollbar scrollbar-y">
+        <transition name="fade-transform" mode="out-in">
+          <!-- <keep-alive> -->
+          <router-view />
+          <!-- </keep-alive> -->
+        </transition>
       </div>
     </div>
-    <div class="nav" v-else>
-       <div class="link">
-        <b tag="i" draggable="false">Memo</b>
-       </div>
-       <div class="tools">
-        <transition-group name="fade" mode="out-in">
-          <i class="iconfont icon-close" key="close" @click="closeMemo"></i>
-          <i
-            :class="['iconfont', ignoreMouse ? 'icon-lock' : 'icon-unlock']"
-            key="lock"
-            @mouseenter="setMemoIgnoreMouseEvents(false)"
-            @mouseleave="setMemoIgnoreMouseEvents(ignoreMouse)"
-            @click="ignoreMouse = !ignoreMouse"
-          ></i>
-        </transition-group>
-      </div>
+    <div v-else class="shrink" @click="changeWindows">
+      <!-- <i
+        :class="['iconfont', showState ? 'icon-run-in' : 'icon-run-up']"
+        key="test2"
+        @click="changeWindows"
+      ></i> -->
     </div>
-    <div class="main scrollbar scrollbar-y">
-      <transition name="fade-transform" mode="out-in">
-        <!-- <keep-alive> -->
-        <router-view />
-        <!-- </keep-alive> -->
-      </transition>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -69,10 +80,22 @@ export default {
       pageName: 'main',
       appName: pkg.name,
       ignoreMouse: false,
-      backgroundImg: ''
+      backgroundImg: '',
+      showState: false
     };
   },
   methods: {
+    changeWindows() {
+      if (this.showState) {
+        ipcRenderer.invoke("shrinkWindows").then(() => {
+          this.showState = false;
+        });
+      } else {
+        ipcRenderer.invoke("showWindows").then(() => {
+          this.showState = true;
+        });
+      }
+    },
     setIgnoreMouseEvents(ignore) {
       ipcRenderer.invoke("setIgnoreMouseEvents", ignore);
     },
@@ -207,4 +230,13 @@ export default {
     z-index: 1000;
   }
 }
+.shrink {
+      width: 100%;
+      height: 100%;
+      border: 0px solid red;
+      background-size:100%;
+      // border-radius: 50%;
+      // background-color: red;
+      background-image: url("./assets/bar.png");
+  }
 </style>
