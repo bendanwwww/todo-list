@@ -73,6 +73,7 @@ import pkg from "../package.json";
 
 import DB from "@/utils/db";
 import { ipcRenderer } from "electron";
+// import { promisify } from "util";
 
 export default {
   data() {
@@ -86,13 +87,29 @@ export default {
   },
   methods: {
     changeWindows() {
+      // const sleep = promisify(setTimeout);
+      ipcRenderer.invoke("hideWindow");
       if (this.showState) {
         ipcRenderer.invoke("shrinkWindows").then(() => {
           this.showState = false;
+          // ipcRenderer.invoke("threadSleep", 1, () => {
+          //   ipcRenderer.invoke("showWindow");
+          // });
+          // sleep(300).then(() => {
+          //   ipcRenderer.invoke("showWindow");
+          // });
+          ipcRenderer.invoke("showWindow");
         });
       } else {
-        ipcRenderer.invoke("showWindows").then(() => {
+        ipcRenderer.invoke("magnifyWindows").then(() => {
           this.showState = true;
+          // ipcRenderer.invoke("threadSleep", 1, () => {
+          //   ipcRenderer.invoke("showWindow");
+          // });
+          // sleep(300).then(() => {
+          //   ipcRenderer.invoke("showWindow");
+          // });
+          ipcRenderer.invoke("showWindow");
         });
       }
     },
@@ -237,6 +254,6 @@ export default {
       background-size:100%;
       // border-radius: 50%;
       // background-color: red;
-      background-image: url("./assets/bar.png");
+      background-image: url("./assets/shrink.png");
   }
 </style>

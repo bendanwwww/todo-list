@@ -9,6 +9,8 @@ import { initExtra, createTray } from "@/utils/backgroundExtra";
 
 import { autoUpdater } from "electron-updater";
 
+import { promisify } from "util";
+
 import pkg from "../package.json";
 import dayjs from "dayjs";
 import path from "path";
@@ -17,6 +19,8 @@ import DB from "@/utils/db";
 let win;
 let memo_win_map = new Map();
 let memo_id_win_map = new Map();
+
+const sleep = promisify(setTimeout);
 
 const min_win_width = 40;
 const min_win_height = 40;
@@ -263,6 +267,10 @@ ipcMain.handle("hideWindow", (event) => {
   win.hide();
 });
 
+ipcMain.handle("showWindow", (event) => {
+  win.show();
+});
+
 ipcMain.handle("openMemoWindows", (event, id) => {
   var vipWin = new BrowserWindow({
     parent: win, // win是主窗口
@@ -285,6 +293,7 @@ ipcMain.handle("openMemoWindows", (event, id) => {
       // openDevTools: true
     },
   });
+  vipWin.hide();
   let now = dayjs();
   memo_win_map.set(now + '', vipWin);
   if (id !== '') {
@@ -292,6 +301,15 @@ ipcMain.handle("openMemoWindows", (event, id) => {
   }
   vipWin.loadURL(winURL + '#/memo?id=' + id + '&timestamp=' + now);
   vipWin.on('closed', () => { vipWin = null });
+  sleep(300).then(() => {
+    vipWin.show();
+  });
+});
+
+ipcMain.handle("threadSleep", (event, timestamp, callback) => {
+  sleep(timestamp).then(() => {
+    callback();
+  });
 });
 
 ipcMain.handle("setMemoIgnoreMouseEvents", (event, router, ignore) => {
@@ -319,14 +337,14 @@ ipcMain.handle("hasMemoWindows", (event) => {
   return memo_id_win_map.size > 0;
 });
 
-ipcMain.handle("showWindows", (event) => {
+ipcMain.handle("magnifyWindows", (event) => {
   const winBounds = win.getBounds();
   let winSize = DB.get("settings.shrink_windows_size");
   if (winSize == undefined) {
     DB.set("settings.shrink_windows_size", [init_win_width, init_win_height]);
     winSize = DB.get("settings.shrink_windows_size");
   }
-  console.info("showWindows == " + winBounds.x, winBounds.y, winSize[0], winSize[1]);
+  console.info("magnifyWindows == " + winBounds.x, winBounds.y, winSize[0], winSize[1]);
   win.setMaximumSize(max_win_width, max_win_height);
   win.setBounds({
     x: winBounds.x - winSize[0] + winBounds.width, 
