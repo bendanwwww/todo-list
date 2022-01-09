@@ -93,7 +93,7 @@ const DB = {
         }
       ],
       settings: {
-        windows_size: [100, 100]
+        shrink_windows_size: [40, 40]
       },
     }).write();
 

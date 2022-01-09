@@ -1,5 +1,5 @@
 <template>
-    <div v-if="showState" id="app" :class="{ unfocused: ignoreMouse }">
+    <div v-if="showState || this.$route.path == '/memo'" id="app" :class="{ unfocused: ignoreMouse }">
       <div class="background">    
         <img :src="backgroundImg" width="100%" height="100%" alt="" />
       </div>

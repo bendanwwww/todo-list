@@ -321,10 +321,10 @@ ipcMain.handle("hasMemoWindows", (event) => {
 
 ipcMain.handle("showWindows", (event) => {
   const winBounds = win.getBounds();
-  let winSize = DB.get("settings.windows_size");
+  let winSize = DB.get("settings.shrink_windows_size");
   if (winSize == undefined) {
-    DB.set("settings.windows_size", [init_win_width, init_win_height]);
-    winSize = DB.get("settings.windows_size");
+    DB.set("settings.shrink_windows_size", [init_win_width, init_win_height]);
+    winSize = DB.get("settings.shrink_windows_size");
   }
   console.info("showWindows == " + winBounds.x, winBounds.y, winSize[0], winSize[1]);
   win.setMaximumSize(max_win_width, max_win_height);
@@ -338,7 +338,7 @@ ipcMain.handle("showWindows", (event) => {
 
 ipcMain.handle("shrinkWindows", (event) => {
   const winBounds = win.getBounds();
-  DB.set("settings.windows_size", [winBounds.width, winBounds.height]);
+  DB.set("settings.shrink_windows_size", [winBounds.width, winBounds.height]);
   console.info("shrinkWindows == " + winBounds.x, winBounds.y, min_win_width, min_win_height);
   win.setMaximumSize(min_win_width, min_win_height);
   win.setBounds({
