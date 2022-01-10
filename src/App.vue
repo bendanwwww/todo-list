@@ -59,12 +59,8 @@
         </transition>
       </div>
     </div>
-    <div v-else class="shrink" @click="changeWindows">
-      <!-- <i
-        :class="['iconfont', showState ? 'icon-run-in' : 'icon-run-up']"
-        key="test2"
-        @click="changeWindows"
-      ></i> -->
+    <div v-else class="shrink" @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd">
+      <div style="-webkit-app-region: drag; width: 50%; height: 50%"></div>
     </div>
 </template>
 
@@ -73,7 +69,6 @@ import pkg from "../package.json";
 
 import DB from "@/utils/db";
 import { ipcRenderer } from "electron";
-// import { promisify } from "util";
 
 export default {
   data() {
@@ -82,35 +77,40 @@ export default {
       appName: pkg.name,
       ignoreMouse: false,
       backgroundImg: '',
-      showState: false
+      showState: false,
+      dragMove: false,
+      upAndDoenTime: 0
     };
   },
   methods: {
     changeWindows() {
-      // const sleep = promisify(setTimeout);
+      console.info("changeWindows " + this.dragMove);
+      if (this.dragMove) {
+        return;
+      }
       ipcRenderer.invoke("hideWindow");
       if (this.showState) {
         ipcRenderer.invoke("shrinkWindows").then(() => {
           this.showState = false;
-          // ipcRenderer.invoke("threadSleep", 1, () => {
-          //   ipcRenderer.invoke("showWindow");
-          // });
-          // sleep(300).then(() => {
-          //   ipcRenderer.invoke("showWindow");
-          // });
           ipcRenderer.invoke("showWindow");
         });
       } else {
         ipcRenderer.invoke("magnifyWindows").then(() => {
           this.showState = true;
-          // ipcRenderer.invoke("threadSleep", 1, () => {
-          //   ipcRenderer.invoke("showWindow");
-          // });
-          // sleep(300).then(() => {
-          //   ipcRenderer.invoke("showWindow");
-          // });
           ipcRenderer.invoke("showWindow");
         });
+      }
+    },
+    handleDragStart() {
+      this.upAndDoenTime = new Date().getTime();
+      this.dragMove = true;
+      console.info("handleDragStart " + this.upAndDoenTime);
+    },
+    handleDragEnd() {
+      const nowTime = new Date().getTime();
+      console.info("handleDragEnd " + nowTime + " " + this.upAndDoenTime);
+      if (nowTime - this.upAndDoenTime < 200) {
+        this.dragMove = false;  
       }
     },
     setIgnoreMouseEvents(ignore) {
@@ -137,7 +137,7 @@ export default {
     },
     refresh() {
       this.backgroundImg = DB.get("settings.background_img");
-    }
+    },
   },
   created() {
     ipcRenderer.invoke("getDataPath").then((storePath) => {
@@ -248,12 +248,13 @@ export default {
   }
 }
 .shrink {
+      // -webkit-app-region: drag;
       width: 100%;
       height: 100%;
       border: 0px solid red;
       background-size:100%;
       // border-radius: 50%;
       // background-color: red;
-      background-image: url("./assets/shrink.png");
+      background-image: url("./assets/bar.png");
   }
 </style>

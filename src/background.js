@@ -96,7 +96,7 @@ async function createWindow() {
   });
 
   setPosition();
-
+  // win.webContents.openDevTools();
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
@@ -308,8 +308,12 @@ ipcMain.handle("openMemoWindows", (event, id) => {
 
 ipcMain.handle("threadSleep", (event, timestamp, callback) => {
   sleep(timestamp).then(() => {
-    callback();
+    console.info(timestamp);
   });
+});
+
+ipcMain.handle("print", (event, log) => {
+    console.info(log);
 });
 
 ipcMain.handle("setMemoIgnoreMouseEvents", (event, router, ignore) => {
