@@ -20,6 +20,8 @@ let win;
 let memo_win_map = new Map();
 let memo_id_win_map = new Map();
 
+var is_move = false;
+
 const sleep = promisify(setTimeout);
 
 const min_win_width = 40;
@@ -269,6 +271,51 @@ ipcMain.handle("hideWindow", (event) => {
 
 ipcMain.handle("showWindow", (event) => {
   win.show();
+});
+
+ipcMain.handle("handleDragMove", (event) => {
+  console.info(1);
+});
+
+let winStartPosition = {x: 0, y: 0};
+let mouseStartPosition = {x: 0, y: 0};
+let movingInterval = null;
+
+ipcMain.handle("handleDragStart", (event) => {
+  is_move = true;
+  // 读取原位置
+  const winPosition = win.getPosition();
+  const winBounds = win.getBounds();
+  winStartPosition = { x: winPosition[0], y: winPosition[1] };
+  mouseStartPosition = screen.getCursorScreenPoint();
+  // 清除
+  if (movingInterval) {
+    clearInterval(movingInterval);
+  }
+  if (is_move) {
+    movingInterval = setInterval(() => {
+      // 实时更新位置
+      const cursorPosition = screen.getCursorScreenPoint();
+      const x = winStartPosition.x + cursorPosition.x - mouseStartPosition.x;
+      const y = winStartPosition.y + cursorPosition.y - mouseStartPosition.y;
+      win.setBounds({
+        x: x, 
+        y: y, 
+        width: winBounds.width, 
+        height: winBounds.height 
+      });
+      // win.setPosition(x, y, true);
+    }, 0.1);
+  } else {
+    clearInterval(movingInterval);
+    movingInterval = null;
+  }
+});
+
+ipcMain.handle("handleDragEnd", (event) => {
+  is_move = false;
+  clearInterval(movingInterval);
+  movingInterval = null;
 });
 
 ipcMain.handle("openMemoWindows", (event, id) => {

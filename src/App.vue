@@ -59,8 +59,9 @@
         </transition>
       </div>
     </div>
+    <!-- <div v-else class="shrink" @mousedown="handleDragStart" @mouseup="handleDragEnd"> -->
     <div v-else class="shrink" @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd">
-      <div style="-webkit-app-region: drag; width: 50%; height: 50%"></div>
+      <!-- <div class="shrink-child" @click="changeWindows"></div> -->
     </div>
 </template>
 
@@ -101,10 +102,14 @@ export default {
         });
       }
     },
+    handleDragMove() {
+      ipcRenderer.invoke("handleDragMove");
+    },
     handleDragStart() {
       this.upAndDoenTime = new Date().getTime();
       this.dragMove = true;
       console.info("handleDragStart " + this.upAndDoenTime);
+      ipcRenderer.invoke("handleDragStart");
     },
     handleDragEnd() {
       const nowTime = new Date().getTime();
@@ -112,6 +117,7 @@ export default {
       if (nowTime - this.upAndDoenTime < 200) {
         this.dragMove = false;  
       }
+      ipcRenderer.invoke("handleDragEnd");
     },
     setIgnoreMouseEvents(ignore) {
       ipcRenderer.invoke("setIgnoreMouseEvents", ignore);
@@ -249,6 +255,16 @@ export default {
 }
 .shrink {
       // -webkit-app-region: drag;
+      width: 100%;
+      height: 100%;
+      border: 0px solid red;
+      background-size:100%;
+      // border-radius: 50%;
+      // background-color: red;
+      background-image: url("./assets/bar.png");
+  }
+  .shrink-child {
+      -webkit-app-region: no-drag;
       width: 100%;
       height: 100%;
       border: 0px solid red;
