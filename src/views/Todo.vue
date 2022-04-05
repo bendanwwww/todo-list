@@ -17,6 +17,7 @@
             @mouseleave="leaveItem(index)">
             <div class="edit" v-if="index !== editIndex">
               <p>{{todo.important == 1 ? '★' : ''}} {{ index + 1 }}.{{ todo.content }}</p>
+              <i v-if="index == moveIndex" class="iconfont icon-add-bold" @click.stop="addItem(index)"></i>
               <i v-if="index == moveIndex" 
               :class="['iconfont', inDropList(index) ? 'icon-arrow-up-bold' : 'icon-arrow-down-bold']" 
               @click.stop="dropItem(index)"></i>
@@ -36,12 +37,36 @@
               <i class="iconfont icon-close" @click.stop="clear(index)"></i>
             </div>
           </div>
-          <div class="item-next" v-if="inDropList(index)">
-            <p>(1) 测试子任务1</p>
+          <div v-for="(item, item_index) in todoList[index].todo_item_list" :key="'todo_item' + item_index">
+            <div class="item-next" 
+              v-if="inDropList(index)" 
+              @click.stop="editingItem(index, item_index)"
+              @mouseenter="moveItemChild(index, item_index)"
+              @mouseleave="leaveItemChild(index, item_index)">
+              <div class="edit" v-if="item_index !== editItemIndex || index !== editItemParentIndex">
+                <p>({{ item_index + 1 }}) {{item.content}}  {{item.important == 1 ? '【已完成】' : ''}}</p>
+                <i v-if="index == moveItemParentIndex && item_index == moveItemIndex && item.important !== 1"
+                  class="iconfont icon-success" @click.stop="doneItem(index, item_index)"></i>
+                <i v-if="index == moveItemParentIndex && item_index == moveItemIndex && item.important == 1"
+                  class="iconfont icon-skip" @click.stop="doneReturnItem(index, item_index)"></i>
+              </div>
+              <div class="edit" v-else>
+                <input
+                  v-model="item.content"
+                  v-focus
+                  @click.stop="return false;"
+                  @keyup.27="cancel(index)"
+                  @keyup.13="editedItem(index, item_index)"
+                  spellcheck="false"
+                />
+                <i class="iconfont icon-select" @click.stop="editedItem(index, item_index)"></i>
+                <i class="iconfont icon-close" @click.stop="clearItem(index,  item_index)"></i>
+              </div>
+            </div>
           </div>
-          <div class="item-next" v-if="inDropList(index)">
+          <!-- <div class="item-next" v-if="inDropList(index)">
             <p>(2) 测试子任务2</p>
-          </div>
+          </div> -->
         </div>
       </transition-group>
     </draggable>
@@ -65,7 +90,11 @@ export default {
       todoList: null,
       drag: false,
       moveIndex: -1,
+      moveItemParentIndex: -1,
+      moveItemIndex: -1,
       editIndex: -1,
+      editItemIndex: -1,
+      editItemParentIndex: -1,
       tempItem: null,
       dblclick: false,
       dropDownList: []
@@ -97,6 +126,16 @@ export default {
     leaveItem(index) {
       if (this.moveIndex == index) {
         this.moveIndex = -1;
+      }
+    },
+    moveItemChild(index, itemIndex) {
+      this.moveItemParentIndex = index
+      this.moveItemIndex = itemIndex;
+    },
+    leaveItemChild(index, itemIndex) {
+      if (this.moveItemParentIndex == index && this.moveItemIndex == itemIndex) {
+        this.moveItemParentIndex = -1
+        this.moveItemIndex = -1;
       }
     },
     dropItem(index) {
@@ -132,6 +171,10 @@ export default {
         this.edited();
         return;
       }
+      if (this.editItemIndex !== -1) {
+        this.editedItem(this.editItemParentIndex);
+        return;
+      }
       this.todoList.push({
         todo_date: getNowDate(),
         todo_datetime: getNowDateTime(),
@@ -142,7 +185,73 @@ export default {
       const index = this.todoList.length - 1;
       this.tempItem = Object.assign({}, this.todoList[index]);
       this.editIndex = index;
-      //this.editing(index);
+    },
+    addItem(index) {
+      if (this.editItemIndex !== -1) {
+        this.editedItem(index);
+        return;
+      }
+      if (this.todoList[index].todo_item_list == undefined) {
+        this.todoList[index].todo_item_list = [];
+      }
+      this.todoList[index].todo_item_list.push({
+        content: "",
+        important: 0
+      });
+      const itemIndex = this.todoList[index].todo_item_list.length - 1;
+      this.tempItem = Object.assign({}, this.todoList[index]);
+      this.editItemParentIndex = index;
+      this.editItemIndex = itemIndex;
+      if (!this.inDropList(index)) {
+        this.dropItem(index);
+      }
+    },
+    editingItem(index, itemIndex) {
+      setTimeout(() => {
+        if (this.dblclick) {
+          return;
+        }
+        if (this.editItemIndex !== -1) {
+          this.editedItem(index);
+        }
+        this.tempItem = Object.assign({}, this.todoList[index]);
+        this.editItemParentIndex = index;
+        this.editItemIndex = itemIndex;
+      }, 220);
+    },
+    editedItem(index) {
+      this.todoList[index].todo_item_list = this.todoList[index].todo_item_list.filter((p) => {
+        return p.content;
+      });
+      this.editItemIndex = -1;
+      this.editItemParentIndex = -1;
+      DB.set("todoList", this.todoList);
+    },
+    clearItem(index, itemIndex) {
+      this.todoList[index].todo_item_list[itemIndex].content = "";
+      this.editedItem(index);
+    },
+    doneItem(index, itemIndex) {
+      if (this.editItemIndex !== -1) {
+        return;
+      }
+      this.dblclick = true;
+      setTimeout(() => {
+        this.dblclick = false;
+      }, 500);
+      this.todoList[index].todo_item_list[itemIndex].important = 1;
+      DB.set("todoList", this.todoList);
+    },
+    doneReturnItem(index, itemIndex) {
+      if (this.editItemIndex !== -1) {
+        return;
+      }
+      this.dblclick = true;
+      setTimeout(() => {
+        this.dblclick = false;
+      }, 500);
+      this.todoList[index].todo_item_list[itemIndex].important = 0;
+      DB.set("todoList", this.todoList);
     },
     editing(index) {
       setTimeout(() => {
@@ -169,10 +278,6 @@ export default {
       this.edited();
     },
     clear(index) {
-      // if (!this.todoList[index].content) {
-      //   this.edited();
-      //   return;
-      // }
       this.todoList[index].content = "";
       this.edited();
       this.reduceRefashDropList(index);

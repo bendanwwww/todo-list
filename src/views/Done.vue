@@ -53,7 +53,8 @@ export default {
         todo_datetime: done.todo_datetime,
         content: done.content,
         type: done.type,
-        important: done.important
+        important: done.important,
+        todo_item_list: done.todo_item_list
       });
       DB.removeById("doneList", done.id);
       this.getDoneList();
