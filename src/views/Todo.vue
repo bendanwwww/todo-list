@@ -45,6 +45,10 @@
               @mouseleave="leaveItemChild(index, item_index)">
               <div class="edit" v-if="item_index !== editItemIndex || index !== editItemParentIndex">
                 <p>({{ item_index + 1 }}) {{item.content}}  {{item.important == 1 ? '【已完成】' : ''}}</p>
+                <i v-if="index == moveItemParentIndex && item_index == moveItemIndex && item_index > 0"
+                  class="iconfont icon-direction-up" @click.stop="upItem(index, item_index)"></i>
+                <i v-if="index == moveItemParentIndex && item_index == moveItemIndex && item_index < todoList[index].todo_item_list.length - 1"
+                  class="iconfont icon-direction-down" @click.stop="downItem(index, item_index)"></i>
                 <i v-if="index == moveItemParentIndex && item_index == moveItemIndex && item.important !== 1"
                   class="iconfont icon-success" @click.stop="doneItem(index, item_index)"></i>
                 <i v-if="index == moveItemParentIndex && item_index == moveItemIndex && item.important == 1"
@@ -226,6 +230,22 @@ export default {
       this.editItemIndex = -1;
       this.editItemParentIndex = -1;
       DB.set("todoList", this.todoList);
+    },
+    upItem(index, itemIndex) {
+      if (itemIndex > 0) {
+        let tmp = this.todoList[index].todo_item_list[itemIndex];
+        this.todoList[index].todo_item_list[itemIndex] = this.todoList[index].todo_item_list[itemIndex - 1];
+        this.todoList[index].todo_item_list[itemIndex - 1] = tmp;
+        this.editedItem(index);
+      }
+    },
+    downItem(index, itemIndex) {
+      if (itemIndex < this.todoList[index].todo_item_list.length - 1) {
+        let tmp = this.todoList[index].todo_item_list[itemIndex];
+        this.todoList[index].todo_item_list[itemIndex] = this.todoList[index].todo_item_list[itemIndex + 1];
+        this.todoList[index].todo_item_list[itemIndex + 1] = tmp;
+        this.editedItem(index);
+      }
     },
     clearItem(index, itemIndex) {
       this.todoList[index].todo_item_list[itemIndex].content = "";
