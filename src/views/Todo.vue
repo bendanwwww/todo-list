@@ -9,27 +9,38 @@
       :disabled="editIndex !== -1"
     >
       <transition-group type="transition" :name="!drag ? 'flip-list' : null">
-        <div
-          class="item"
-          v-for="(todo, index) in todoList"
-          :key="'todo' + index"
-          @dblclick.stop="done($event, index)"
-          @click.stop="editing(index)"
-        >
-          <p v-if="index !== editIndex">{{todo.important == 1 ? '★' : ''}} {{ index + 1 }}.{{ todo.content }}</p>
-          <div class="edit" v-else>
-            <input
-              v-model="todo.content"
-              v-focus
-              @click.stop="return false;"
-              @keyup.27="cancel(index)"
-              @keyup.13="edited"
-              spellcheck="false"
-            />
-            <i :class="['iconfont', todo.important == 0 ? 'icon-favorite' : 'icon-favorite-filling']" @click.stop="addStar(index)"></i>
-            <i v-if="todo.content !== ''" class="iconfont icon-run-in" @click.stop="addLongTodo($event, index)"></i>
-            <i class="iconfont icon-select" @click.stop="edited"></i>
-            <i class="iconfont icon-close" @click.stop="clear(index)"></i>
+        <div v-for="(todo, index) in todoList" :key="'todo' + index">
+          <div class="item"
+            @dblclick.stop="done($event, index)"
+            @click.stop="editing(index)"
+            @mouseenter="moveItem(index)"
+            @mouseleave="leaveItem(index)">
+            <div class="edit" v-if="index !== editIndex">
+              <p>{{todo.important == 1 ? '★' : ''}} {{ index + 1 }}.{{ todo.content }}</p>
+              <i v-if="index == moveIndex" 
+              :class="['iconfont', inDropList(index) ? 'icon-arrow-up-bold' : 'icon-arrow-down-bold']" 
+              @click.stop="dropItem(index)"></i>
+            </div>
+            <div class="edit" v-else>
+              <input
+                v-model="todo.content"
+                v-focus
+                @click.stop="return false;"
+                @keyup.27="cancel(index)"
+                @keyup.13="edited"
+                spellcheck="false"
+              />
+              <i :class="['iconfont', todo.important == 0 ? 'icon-favorite' : 'icon-favorite-filling']" @click.stop="addStar(index)"></i>
+              <i v-if="todo.content !== ''" class="iconfont icon-run-in" @click.stop="addLongTodo($event, index)"></i>
+              <i class="iconfont icon-select" @click.stop="edited"></i>
+              <i class="iconfont icon-close" @click.stop="clear(index)"></i>
+            </div>
+          </div>
+          <div class="item-next" v-if="inDropList(index)">
+            <p>(1) 测试子任务1</p>
+          </div>
+          <div class="item-next" v-if="inDropList(index)">
+            <p>(2) 测试子任务2</p>
           </div>
         </div>
       </transition-group>
@@ -53,9 +64,11 @@ export default {
       pageName: 'todo',
       todoList: null,
       drag: false,
+      moveIndex: -1,
       editIndex: -1,
       tempItem: null,
       dblclick: false,
+      dropDownList: []
     };
   },
   methods: {
@@ -77,6 +90,42 @@ export default {
       this.todoList[index].important == 0 
       ? this.todoList[index].important = 1 
       : this.todoList[index].important = 0;
+    },
+    moveItem(index) {
+      this.moveIndex = index;
+    },
+    leaveItem(index) {
+      if (this.moveIndex == index) {
+        this.moveIndex = -1;
+      }
+    },
+    dropItem(index) {
+      if (this.moveIndex == index) {
+        let dropIndex = this.dropDownList.indexOf(index)
+        if (dropIndex > -1) {
+          this.dropDownList.splice(dropIndex, 1);
+        } else {
+          this.dropDownList.push(index);
+        }
+      }
+    },
+    inDropList(index) {
+      return this.dropDownList.indexOf(index) > -1;
+    },
+    reduceRefashDropList(index) {
+      let dropIndex = this.dropDownList.indexOf(index)
+      if (dropIndex > -1) {
+        this.dropDownList.splice(dropIndex, 1);
+      }
+      for (var i = 0 ; i < this.dropDownList.length ; i++) {
+        if (this.dropDownList[i] > index) {
+          this.dropDownList[i] -= 1;
+        }
+      }
+      let removeIndex = this.dropDownList.indexOf(-1)
+      if (removeIndex > -1) {
+        this.dropDownList.splice(removeIndex, 1);
+      }
     },
     add() {
       if (this.editIndex !== -1) {
@@ -120,11 +169,13 @@ export default {
       this.edited();
     },
     clear(index) {
-      if (!this.todoList[index].content) {
-        this.edited();
-        return;
-      }
+      // if (!this.todoList[index].content) {
+      //   this.edited();
+      //   return;
+      // }
       this.todoList[index].content = "";
+      this.edited();
+      this.reduceRefashDropList(index);
     },
     done(event, index) {
       if (this.editIndex !== -1) {
@@ -143,6 +194,7 @@ export default {
         )
       );
       this.todoList.splice(index, 1);
+      this.reduceRefashDropList(index);
       DB.set("todoList", this.todoList);
     },
     addLongTodo(event, index) {
@@ -162,6 +214,7 @@ export default {
         )
       );
       this.todoList.splice(index, 1);
+      this.reduceRefashDropList(index);
       DB.set("todoList", this.todoList);
     },
   },
@@ -232,6 +285,47 @@ export default {
       }
     }
     .item:hover {
+      p {
+        color: rgba($color: #ffffff, $alpha: 0.6);
+      }
+    }
+    .item-next {
+      height: 22px;
+      p {
+        width: 100%;
+        height: 100%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        cursor: pointer;
+        user-select: none;
+        font-size: 14px;
+        line-height: 22px;
+        font-weight: 600;
+        color: rgba($color: #ffffff, $alpha: 0.7);
+      }
+      .edit {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        justify-content: space-between;
+        input {
+          flex: 1;
+          height: 100%;
+          outline: none;
+          border: none;
+          background: transparent;
+          font-size: 14px;
+          line-height: 22px;
+        }
+        i {
+          line-height: 22px;
+          padding: 0 5px;
+          cursor: pointer;
+        }
+      }
+    }
+    .item-next:hover {
       p {
         color: rgba($color: #ffffff, $alpha: 0.6);
       }
