@@ -116,8 +116,9 @@ export default {
     getTodoList() {
       const list = DB.get("todoList");
       this.todoList = this.addMethods(list);
-      console.info(this.todoList[0].type);
-      console.info(this.todoList[0].important);
+      for (let i = 0 ; i < this.todoList.length ; i++) {
+        this.dropDownList.push(i);
+      }
     },
     addStar(index) {
       this.todoList[index].important == 0 
@@ -415,7 +416,7 @@ export default {
       }
     }
     .item-next {
-      height: 22px;
+      height: 24px;
       p {
         width: 100%;
         height: 100%;
