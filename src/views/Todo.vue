@@ -18,7 +18,7 @@
             <div class="edit" v-if="index !== editIndex">
               <p>{{todo.important == 1 ? '★' : ''}} {{ index + 1 }}.{{ todo.content }}</p>
               <i v-if="index == moveIndex" class="iconfont icon-add-bold" @click.stop="addItem(index)"></i>
-              <i v-if="index == moveIndex" 
+              <i v-if="index == moveIndex && todo.todo_item_list !== undefined && todo.todo_item_list !== null && todo.todo_item_list.length > 0" 
               :class="['iconfont', inDropList(index) ? 'icon-arrow-up-bold' : 'icon-arrow-down-bold']" 
               @click.stop="dropItem(index)"></i>
             </div>
@@ -37,7 +37,7 @@
               <i class="iconfont icon-close" @click.stop="clear(index)"></i>
             </div>
           </div>
-          <div v-for="(item, item_index) in todoList[index].todo_item_list" :key="'todo_item' + item_index">
+          <div v-for="(item, item_index) in todo.todo_item_list" :key="'todo_item' + item_index">
             <div class="item-next" 
               v-if="inDropList(index)" 
               @click.stop="editingItem(index, item_index)"
