@@ -1,21 +1,15 @@
 <template>
-  <div class="root scrollbar scrollbar-y">
-    <div class="list">
+  <div class="root">
       <transition>
-        <div class="item">
-            <div class="edit">
-              <textarea
+              <textarea class="scrollbar scrollbar-y"
                 v-model="content"
                 spellcheck="false"
               />
-            </div>
-        </div>
       </transition>
-    </div>
   </div>
 </template>
-<script>
 
+<script>
 import DB from "@/utils/db";
 import { ipcRenderer } from "electron";
 import { v4 as uuidv4 } from 'uuid';
@@ -76,34 +70,21 @@ export default {
 <style lang="scss" scoped>
 .root {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
   box-sizing: border-box;
   padding: 0 15px 28px 15px;
-  .list {
-    .item {
-      height: 100%;
-      .edit {
-        display: flex;
-        width: 100%;
-        height: 100%;
-        justify-content: space-between;
-        textarea {
-          flex: 1;
-          height: 1000px;
-          outline: none;
-          border: none;
-          background: transparent;
-          font-size: 16px;
-          line-height: 28px;
-          resize: none;
-        }
-      }
-    }
-    .item:hover {
-      p {
-        color: rgba($color: #ffffff, $alpha: 0.6);
-      }
-    }
+  textarea {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    outline: none;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    line-height: 28px;
+    resize: none;
+    display: flex;
+    justify-content: space-between;
   }
 }
 .flip-list-move {

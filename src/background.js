@@ -348,6 +348,7 @@ ipcMain.handle("openMemoWindows", (event, id) => {
   }
   vipWin.loadURL(winURL + '#/memo?id=' + id + '&timestamp=' + now);
   vipWin.on('closed', () => { vipWin = null });
+  // vipWin.webContents.openDevTools()
   sleep(300).then(() => {
     vipWin.show();
   });
