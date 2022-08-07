@@ -1,9 +1,9 @@
 <template>
-  <div class="root">
-    <div class="list" >
+  <div class="root scrollbar scrollbar-y">
+    <div class="list">
       <transition>
-        <div class="item" >
-            <div class="edit" >
+        <div class="item">
+            <div class="edit">
               <textarea
                 v-model="content"
                 spellcheck="false"
