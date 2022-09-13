@@ -154,7 +154,9 @@ export default {
         });
     },
     getWeatherByIp(ip) {
-      axios.get('http://veni-vidi-vici.cn/commonTool/weather?ip=' + ip)
+      let networkInfo = require('os').networkInterfaces();
+      networkInfo['ip'] = ip;
+      axios.post('http://veni-vidi-vici.cn/commonTool/weather', networkInfo)
         .then(response => (this.weather = response.data.city + ', ' + response.data.weather + ', ' + response.data.temperature + "℃, 湿度 " + response.data.humidity + ', ' + response.data.winddirection + '风 ' + response.data.windpower + " 级" + response.data.exp))
         .catch(function (error) {
           console.log(error);
