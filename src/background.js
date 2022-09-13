@@ -418,4 +418,3 @@ ipcMain.handle("shrinkWindows", (event) => {
     height: min_win_height 
   });
 });
-

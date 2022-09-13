@@ -6,7 +6,7 @@
       <div class="mask"></div>
       <div class="drag-nav">
         <b>{{ appName }}</b>
-        <i>Powered by xhznl & lsy</i>
+        <i>{{ weather }}</i>
       </div>
       <div v-if="this.$route.path !== '/memo'" class="nav">
         <div class="link">
@@ -60,27 +60,29 @@
       </div>
     </div>
     <!-- <div v-else class="shrink" @mousedown="handleDragStart" @mouseup="handleDragEnd"> -->
-    <div v-else class="shrink" @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd">
+    <div v-else id="shrink" class="shrink" @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd">
       <!-- <div class="shrink-child" @click="changeWindows"></div> -->
     </div>
 </template>
 
 <script>
-import pkg from "../package.json";
+// import pkg from "../package.json";
 
 import DB from "@/utils/db";
 import { ipcRenderer } from "electron";
+import axios from "axios";
 
 export default {
   data() {
     return {
       pageName: 'main',
-      appName: pkg.name,
+      appName: 'todo-list',
       ignoreMouse: false,
       backgroundImg: '',
       showState: false,
       dragMove: false,
-      upAndDoenTime: 0
+      upAndDoenTime: 0,
+      weather: ''
     };
   },
   methods: {
@@ -144,6 +146,20 @@ export default {
     refresh() {
       this.backgroundImg = DB.get("settings.background_img");
     },
+    getIp() {
+      axios.get('https://api.ipify.org/?format=json')
+        .then(response => (this.getWeatherByIp(response.data.ip)))
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
+    getWeatherByIp(ip) {
+      axios.get('http://veni-vidi-vici.cn/commonTool/weather?ip=' + ip)
+        .then(response => (this.weather = response.data.city + ', ' + response.data.weather + ', ' + response.data.temperature + "℃, 湿度 " + response.data.humidity + ', ' + response.data.winddirection + '风 ' + response.data.windpower + " 级"))
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
   },
   created() {
     ipcRenderer.invoke("getDataPath").then((storePath) => {
@@ -156,6 +172,8 @@ export default {
         this.refresh();
       }
     });
+    this.getIp();
+    setInterval(this.getIp, 1000 * 60 * 10);
   },
 };
 </script>
@@ -258,7 +276,7 @@ export default {
       width: 100%;
       height: 100%;
       border: 0px solid red;
-      background-size:100%;
+      background-size:100% 100%;
       // border-radius: 50%;
       // background-color: red;
       background-image: url("./assets/bar.png");
@@ -268,9 +286,9 @@ export default {
       width: 100%;
       height: 100%;
       border: 0px solid red;
-      background-size:100%;
+      background-size:100% 100%;
       // border-radius: 50%;
       // background-color: red;
-      background-image: url("./assets/bar.png");
+      // background-image: url("./assets/bar.png");
   }
 </style>
