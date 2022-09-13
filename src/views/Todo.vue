@@ -17,6 +17,9 @@
             @mouseleave="leaveItem(index)">
             <div class="edit" v-if="index !== editIndex">
               <p>{{todo.important == 1 ? '★' : ''}} {{ index + 1 }}.{{ todo.content }}</p>
+              <i v-if="index == moveIndex && todo.todo_item_list !== undefined && todo.todo_item_list !== null && todo.todo_item_list.length > 0" 
+              :class="['iconfont', todo.pin ? 'icon-pin-fill' : 'icon-pin']"
+              @click.stop="addPin(index)"></i>
               <i v-if="index == moveIndex" class="iconfont icon-add-bold" @click.stop="addItem(index)"></i>
               <i v-if="index == moveIndex && todo.todo_item_list !== undefined && todo.todo_item_list !== null && todo.todo_item_list.length > 0" 
               :class="['iconfont', inDropList(index) ? 'icon-arrow-up-bold' : 'icon-arrow-down-bold']" 
@@ -110,6 +113,7 @@ export default {
       for (var i = 0 ; i < list.length ; i++) {
         list[i].type === undefined ? list[i].type = "short" : null;
         list[i].important === undefined ? list[i].important = "0" : null;
+        list[i].pin === undefined ? list[i].pin = false : null;
       }
       return list;
     },
@@ -117,13 +121,26 @@ export default {
       const list = DB.get("todoList");
       this.todoList = this.addMethods(list);
       for (let i = 0 ; i < this.todoList.length ; i++) {
-        this.dropDownList.push(i);
+        if (list[i].pin) {
+          this.dropDownList.push(i);
+        }
       }
     },
     addStar(index) {
       this.todoList[index].important == 0 
       ? this.todoList[index].important = 1 
       : this.todoList[index].important = 0;
+    },
+    addPin(index) {
+      this.todoList[index].pin == true 
+      ? this.todoList[index].pin = false 
+      : this.todoList[index].pin = true;
+      if (this.todoList[index].pin && !this.inDropList(index)) {
+        this.dropItem(index);
+      } else if (!this.todoList[index].pin && this.inDropList(index)) {
+        this.dropItem(index);
+      }
+      this.editedItem(index);
     },
     moveItem(index) {
       this.moveIndex = index;

@@ -32,6 +32,7 @@ const DB = {
           content: "“单击”下方空处，创建一个Todo",
           type: "short",
           important: 0,
+          pin: false,
           todo_item_list: [
             {
               content: "你可以在这里创建子任务",
@@ -45,6 +46,7 @@ const DB = {
           content: "“双击”Todo，表示已完成",
           type: "short",
           important: 0,
+          pin: false,
           todo_item_list: []
         },
         {
@@ -53,6 +55,7 @@ const DB = {
           content: "“单击”Todo，可进行更改或删除",
           type: "short",
           important: 0,
+          pin: false,
           todo_item_list: []
         },
         {
@@ -61,6 +64,7 @@ const DB = {
           content: "“长按”Todo，可进行拖动排序",
           type: "short",
           important: 0,
+          pin: false,
           todo_item_list: []
         },
         {
@@ -69,6 +73,7 @@ const DB = {
           content: "【重要】给项目点一个star",
           type: "short",
           important: 0,
+          pin: false,
           todo_item_list: []
         },
       ],
@@ -92,6 +97,7 @@ const DB = {
           id: "272aa857-bd53-44fb-b6fc-49d4ef595ade",
           type: "long",
           important: 1,
+          pin: false,
           todo_item_list: []
         },
       ],
