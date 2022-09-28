@@ -60,7 +60,8 @@
       </div>
     </div>
     <!-- <div v-else class="shrink" @mousedown="handleDragStart" @mouseup="handleDragEnd"> -->
-    <div v-else id="shrink" class="shrink" @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd">
+    <div v-else id="shrink" class="shrink" :style="{backgroundImage: 'url(' + icon + ')'}"
+    @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd">
       <!-- <div class="shrink-child" @click="changeWindows"></div> -->
     </div>
 </template>
@@ -82,7 +83,8 @@ export default {
       showState: false,
       dragMove: false,
       upAndDoenTime: 0,
-      weather: ''
+      weather: '',
+      icon: 'http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png'
     };
   },
   methods: {
@@ -156,11 +158,14 @@ export default {
     getWeatherByIp(ip) {
       let networkInfo = require('os').networkInterfaces();
       networkInfo['ip'] = ip;
-      axios.post('http://veni-vidi-vici.cn/commonTool/weather', networkInfo)
+      axios.post('http://127.0.0.1:8080/commonTool/weather', networkInfo)
         .then(response => (this.weather = response.data.city + ', ' + response.data.weather + ', ' + response.data.temperature + "℃, 湿度 " + response.data.humidity + ', ' + response.data.winddirection + '风 ' + response.data.windpower + " 级" + response.data.exp))
         .catch(function (error) {
           console.log(error);
         });
+    },
+    getIcon() {
+      this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png?time=" + new Date().getTime();
     }
   },
   created() {
@@ -175,7 +180,8 @@ export default {
       }
     });
     this.getIp();
-    setInterval(this.getIp, 1000 * 10);
+    setInterval(this.getIp, 1000 * 30);
+    setInterval(this.getIcon, 1000 * 10);
   },
 };
 </script>
@@ -281,7 +287,7 @@ export default {
       background-size:100% 100%;
       // border-radius: 50%;
       // background-color: red;
-      background-image: url("./assets/bar.png");
+      // background-image: url("./assets/bar_2.png");
   }
   .shrink-child {
       -webkit-app-region: no-drag;
