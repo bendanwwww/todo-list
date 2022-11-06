@@ -61,7 +61,7 @@
     </div>
     <!-- <div v-else class="shrink" @mousedown="handleDragStart" @mouseup="handleDragEnd"> -->
     <div v-else id="shrink" class="shrink" :style="{backgroundImage: 'url(' + icon + ')'}"
-    @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd">
+    @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd" @mouseover="getMouseOverIcon" @mouseout="getMouseOutIcon">
       <!-- <div class="shrink-child" @click="changeWindows"></div> -->
     </div>
 </template>
@@ -105,6 +105,7 @@ export default {
           ipcRenderer.invoke("showWindow");
         });
       }
+      this.getMouseOutIcon();
     },
     handleDragMove() {
       ipcRenderer.invoke("handleDragMove");
@@ -158,13 +159,16 @@ export default {
     getWeatherByIp(ip) {
       let networkInfo = require('os').networkInterfaces();
       networkInfo['ip'] = ip;
-      axios.post('http://127.0.0.1:8080/commonTool/weather', networkInfo)
+      axios.post('http://veni-vidi-vici.cn/commonTool/weather', networkInfo)
         .then(response => (this.weather = response.data.city + ', ' + response.data.weather + ', ' + response.data.temperature + "℃, 湿度 " + response.data.humidity + ', ' + response.data.winddirection + '风 ' + response.data.windpower + " 级" + response.data.exp))
         .catch(function (error) {
           console.log(error);
         });
     },
-    getIcon() {
+    getMouseOverIcon() {
+      this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.gif?time=" + new Date().getTime();
+    },
+    getMouseOutIcon() {
       this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png?time=" + new Date().getTime();
     }
   },
@@ -181,7 +185,7 @@ export default {
     });
     this.getIp();
     setInterval(this.getIp, 1000 * 30);
-    setInterval(this.getIcon, 1000 * 10);
+    // setInterval(this.getIcon, 1000 * 10);
   },
 };
 </script>
