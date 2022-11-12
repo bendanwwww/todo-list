@@ -59,7 +59,7 @@
         </transition>
       </div>
     </div>
-    <!-- <div v-else class="shrink" @mousedown="handleDragStart" @mouseup="handleDragEnd"> -->
+    <!-- <div v-else class="shrink" @mousedown="handleDragStart" @mouseup="handleDragEnd"> <div v-else id="shrink" class="shrink"  -->
     <div v-else id="shrink" class="shrink" :style="{backgroundImage: 'url(' + icon + ')'}"
     @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd" @mouseover="getMouseOverIcon" @mouseout="getMouseOutIcon">
       <!-- <div class="shrink-child" @click="changeWindows"></div> -->
@@ -72,6 +72,7 @@
 import DB from "@/utils/db";
 import { ipcRenderer } from "electron";
 import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   data() {
@@ -84,7 +85,10 @@ export default {
       dragMove: false,
       upAndDoenTime: 0,
       weather: '',
-      icon: 'http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png'
+      icon: 'http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png',
+      // icon: require('./assets/bar.png'),
+      runGifImg: null,
+      returnGifImg: null
     };
   },
   methods: {
@@ -160,22 +164,42 @@ export default {
       let networkInfo = require('os').networkInterfaces();
       networkInfo['ip'] = ip;
       axios.post('http://veni-vidi-vici.cn/commonTool/weather', networkInfo)
-        .then(response => (this.weather = response.data.city + ', ' + response.data.weather + ', ' + response.data.temperature + "℃, 湿度 " + response.data.humidity + ', ' + response.data.winddirection + '风 ' + response.data.windpower + " 级" + response.data.exp))
+        // .then(response => (this.weather = response.data.city + ', ' + response.data.weather + ', ' + response.data.temperature + "℃, 湿度 " + response.data.humidity + ', ' + response.data.winddirection + '风 ' + response.data.windpower + " 级" + response.data.exp))
+        .then(response => (this.weather = response.data.exp))
         .catch(function (error) {
           console.log(error);
         });
     },
     getMouseOverIcon() {
-      this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.gif?time=" + new Date().getTime();
+      // this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.gif?time=" + new Date().getTime();
+      // this.icon = require('./assets/bar.gif') + '?' + Math.random();
+      this.icon = this.runGifImg.src;
+      this.reloadReturnGif();
     },
     getMouseOutIcon() {
-      this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png?time=" + new Date().getTime();
+      // this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png?time=" + new Date().getTime();
+      // this.icon = require('./assets/bar.png');
+      this.icon = this.returnGifImg.src;
+      this.reloadRunGif();
+    },
+    reloadRunGif() {
+      this.runGifImg = new Image()
+      // this.gifImg.src = require('./assets/bar.gif') + '?' + Math.random();
+      this.runGifImg.src = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.gif?time=" + new Date().getTime();
+    },
+    reloadReturnGif() {
+      this.returnGifImg = new Image()
+      // this.gifImg.src = require('./assets/bar.gif') + '?' + Math.random();
+      this.returnGifImg.src = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar_return.gif?time=" + new Date().getTime();
     }
   },
   created() {
     ipcRenderer.invoke("getDataPath").then((storePath) => {
       DB.initDB(storePath);
       this.backgroundImg = DB.get("settings.background_img");
+      if (DB.get("app_id") == "") {
+        DB.set("app_id", uuidv4());
+      }
     });
     ipcRenderer.on('refresh', (event, name, msg) => {
       console.info("name: " + name + " msg: "+ msg);
@@ -184,6 +208,8 @@ export default {
       }
     });
     this.getIp();
+    this.reloadRunGif();
+    this.reloadReturnGif();
     setInterval(this.getIp, 1000 * 30);
     // setInterval(this.getIcon, 1000 * 10);
   },
@@ -291,7 +317,7 @@ export default {
       background-size:100% 100%;
       // border-radius: 50%;
       // background-color: red;
-      // background-image: url("./assets/bar_2.png");
+      // background-image: url("./assets/bar.gif");
   }
   .shrink-child {
       -webkit-app-region: no-drag;

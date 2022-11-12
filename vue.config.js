@@ -6,13 +6,16 @@ module.exports = {
       builderOptions: {
         appId: "xhznl-todo-list",
         productName: "xhznl-todo-list",
-        copyright: "Copyright © 2021 lsy",
+        copyright: "Copyright © 2021 lsy & Ankh",
         // directories: {
         //   output: "./dist", //输出文件路径
         // },
         win: {
-          icon: "./public/logo.ico",
+          icon: "./public/todoicon.png",
           target: "nsis",
+        },
+        mac: {
+          icon: "./public/todoicon.png",
         },
         nsis: {
           oneClick: false,
