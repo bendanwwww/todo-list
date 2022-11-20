@@ -25,6 +25,7 @@ const DB = {
     db._.mixin(LodashId);
 
     db.defaults({
+      app_id: "",
       todoList: [
         {
           todo_date: getNowDate(),

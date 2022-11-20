@@ -11,11 +11,11 @@ module.exports = {
         //   output: "./dist", //输出文件路径
         // },
         win: {
-          icon: "./public/todoicon.png",
+          icon: "./public/todoicon_v2.png",
           target: "nsis",
         },
         mac: {
-          icon: "./public/todoicon.png",
+          icon: "./public/todoicon_v2.png",
         },
         nsis: {
           oneClick: false,

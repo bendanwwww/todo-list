@@ -61,7 +61,7 @@
     </div>
     <!-- <div v-else class="shrink" @mousedown="handleDragStart" @mouseup="handleDragEnd"> <div v-else id="shrink" class="shrink"  -->
     <div v-else id="shrink" class="shrink" :style="{backgroundImage: 'url(' + icon + ')'}"
-    @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd" @mouseover="getMouseOverIcon" @mouseout="getMouseOutIcon">
+    @click="changeWindows" @mousedown="handleDragStart" @mouseup="handleDragEnd" @mouseover="handleMouseOver" @mouseout="handleMouseOut">
       <!-- <div class="shrink-child" @click="changeWindows"></div> -->
     </div>
 </template>
@@ -82,13 +82,17 @@ export default {
       ignoreMouse: false,
       backgroundImg: '',
       showState: false,
+      clickState: false,
       dragMove: false,
       upAndDoenTime: 0,
       weather: '',
       icon: 'http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png',
       // icon: require('./assets/bar.png'),
+      stillIcon: null,
       runGifImg: null,
-      returnGifImg: null
+      returnGifImg: null,
+      mouseDownGifImg: null,
+      mouseUpGifImg: null
     };
   },
   methods: {
@@ -97,19 +101,35 @@ export default {
       if (this.dragMove) {
         return;
       }
-      ipcRenderer.invoke("hideWindow");
       if (this.showState) {
+        ipcRenderer.invoke("hideWindow");
         ipcRenderer.invoke("shrinkWindows").then(() => {
           this.showState = false;
+          this.clickState = false;
+          this.getStillIcon();
           ipcRenderer.invoke("showWindow");
         });
       } else {
-        ipcRenderer.invoke("magnifyWindows").then(() => {
-          this.showState = true;
-          ipcRenderer.invoke("showWindow");
-        });
+        this.getMouseUpIcon();
+        setTimeout(() => {
+          ipcRenderer.invoke("hideWindow");
+          ipcRenderer.invoke("magnifyWindows").then(() => {
+            this.showState = true;
+            this.clickState = false;
+            ipcRenderer.invoke("showWindow");
+          });
+        }, 600);
       }
-      this.getMouseOutIcon();
+    },
+    handleMouseOver() {
+      if (!this.clickState) {
+        this.getMouseOverIcon();
+      }
+    },
+    handleMouseOut() {
+      if (!this.clickState) {
+        this.getMouseOutIcon();
+      }
     },
     handleDragMove() {
       ipcRenderer.invoke("handleDragMove");
@@ -117,14 +137,18 @@ export default {
     handleDragStart() {
       this.upAndDoenTime = new Date().getTime();
       this.dragMove = true;
+      this.clickState = true;
+      this.getMouseDownIcon();
       console.info("handleDragStart " + this.upAndDoenTime);
       ipcRenderer.invoke("handleDragStart");
     },
     handleDragEnd() {
       const nowTime = new Date().getTime();
       console.info("handleDragEnd " + nowTime + " " + this.upAndDoenTime);
-      if (nowTime - this.upAndDoenTime < 200) {
-        this.dragMove = false;  
+      if (nowTime - this.upAndDoenTime < 500) {
+        this.dragMove = false;
+      } else {
+        this.getStillIcon()
       }
       ipcRenderer.invoke("handleDragEnd");
     },
@@ -170,27 +194,56 @@ export default {
           console.log(error);
         });
     },
-    getMouseOverIcon() {
-      // this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.gif?time=" + new Date().getTime();
-      // this.icon = require('./assets/bar.gif') + '?' + Math.random();
-      this.icon = this.runGifImg.src;
+    getStillIcon() {
+      this.icon = this.stillIcon.src;
+    },
+    getMouseDownIcon() {
+      this.icon = this.mouseDownGifImg.src;
+      this.reloadMouseUpGif();
+      this.reloadStillPng();
+      this.reloadRunGif();
       this.reloadReturnGif();
     },
+    getMouseUpIcon() {
+      this.icon = this.mouseUpGifImg.src;
+      this.reloadMouseDownGif();
+      this.reloadStillPng();
+      this.reloadRunGif();
+      this.reloadReturnGif();
+    },
+    getMouseOverIcon() {
+      this.icon = this.runGifImg.src;
+      this.reloadReturnGif();
+      this.reloadStillPng();
+      this.reloadMouseUpGif();
+      this.reloadMouseDownGif();
+    },
     getMouseOutIcon() {
-      // this.icon = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png?time=" + new Date().getTime();
-      // this.icon = require('./assets/bar.png');
       this.icon = this.returnGifImg.src;
       this.reloadRunGif();
+      this.reloadStillPng();
+      this.reloadMouseUpGif();
+      this.reloadMouseDownGif();
+    },
+    reloadStillPng() {
+      this.stillIcon = new Image()
+      this.stillIcon.src = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.png?time=" + new Date().getTime();
     },
     reloadRunGif() {
       this.runGifImg = new Image()
-      // this.gifImg.src = require('./assets/bar.gif') + '?' + Math.random();
       this.runGifImg.src = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar.gif?time=" + new Date().getTime();
     },
     reloadReturnGif() {
       this.returnGifImg = new Image()
-      // this.gifImg.src = require('./assets/bar.gif') + '?' + Math.random();
       this.returnGifImg.src = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/bar_return.gif?time=" + new Date().getTime();
+    },
+    reloadMouseDownGif() {
+      this.mouseDownGifImg = new Image()
+      this.mouseDownGifImg.src = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/mouse_down.png?time=" + new Date().getTime();
+    },
+    reloadMouseUpGif() {
+      this.mouseUpGifImg = new Image()
+      this.mouseUpGifImg.src = "http://manager-lsy.oss-cn-beijing.aliyuncs.com/todo_list/click.gif?time=" + new Date().getTime();
     }
   },
   created() {
@@ -208,8 +261,11 @@ export default {
       }
     });
     this.getIp();
+    this.reloadStillPng();
     this.reloadRunGif();
     this.reloadReturnGif();
+    this.reloadMouseDownGif();
+    this.reloadMouseUpGif();
     setInterval(this.getIp, 1000 * 30);
     // setInterval(this.getIcon, 1000 * 10);
   },
